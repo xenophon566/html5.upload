@@ -1,0 +1,51 @@
+/**
+* My Upload Plugin - Style
+* 
+* @Date 	20140205
+* @Author 	ShawnWu
+* @Version 	release v3.0.20140227
+* @License 	under the MIT License
+**/
+* {
+    margin: 4px;
+    padding: 2px;
+}
+#uploadArea {
+    background-color: #DDD;
+    width: 96%; height: 160px;
+    margin: 20px;
+    border: 1px dashed;
+    font-size: 48px;
+    text-align: center;
+}
+.myProgress {
+	width: 96%; height: 28px;
+	margin: 20px;
+	text-align: center;
+}
+.uploadButton {
+	top: 72px;
+	margin: 12px 36px;
+	display: inline;
+	float: left;
+	position: absolute;
+}
+.uploadButton a {
+	text-decoration: none;
+	color: #888;
+}
+.uploadAbort {
+	top: 72px; right: 24px;
+	margin: 12px 48px;
+	display: inline;
+	float: right;
+	position: absolute;
+}
+.uploadAbort a {
+	text-decoration: none;
+	color: #888;
+}
+.uploadInfo {
+    width: 96%;
+    margin: 20px;
+}
