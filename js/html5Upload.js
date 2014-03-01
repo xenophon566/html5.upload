@@ -126,7 +126,7 @@ var html5 = (function(){
 	return {
 		paras : function(parameter){ return eval(parameter) },
 		
-		setParas : function(obj){ object = obj },
+		setParas : function(obj){ object = jQuery.extend(object, obj) },
 		
 		progress : function(file){ return uploadProgress(file) },
 		
