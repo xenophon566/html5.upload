@@ -40,7 +40,6 @@ $(function(){
 			'width': 120, 'height': 120
 		}
 	};
-	
 	var options = {
 		uploadArea: '#uploadArea', uploadButton: '#uploadButton', uploadAbort: '#uploadAbort',	//upload element
 		mimeTypes: html5.paras('imageMime'), mimeStrict: false,	//mimeTypes setting
@@ -51,21 +50,17 @@ $(function(){
 		dragleave: function(e){$(this).css("background-color", "#DDD")},	//DnD event setting
 		dropdown: function(e){$(this).css("background-color", "#DDD")},	//DnD event setting
 		readMethod: 'readAsDataURL',	//FileReader method setting
-		startReader: function(e, file){ if($("#myProgress").size()) $("#myProgress").show(); },	//Reader
-		progressReader: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	//Reader
+		startReader: function(e, file){ if($("#myProgress").size()) $("#myProgress").show(); },	//startReader
+		progressReader: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	//progressReader
+		loadReader: function(e, file){ imageUtility.readProcess(e, file, imageUtilityObj); },	//loadReader
 		endReader: function(e, file){
 			if(e.target.error) console.error(e.target.error.name);
 			file = e = undefined; if(!!~navigator.userAgent.toLowerCase().indexOf('msie')) CollectGarbage();
-		},	//Reader
-		loadReader: function(e, file){ imageUtility.readProcess(e, file, imageUtilityObj); },	//Reader
-		abortReader: function(e, file){ console.warn('Aborting'); if($("#myProgress").size()) $("#myProgress").hide(); }, //Reader
+		},	//endReader
+		abortReader: function(e, file){ console.warn('Aborting'); if($("#myProgress").size()) $("#myProgress").hide(); }, //abortReader
 		ajaxType: 'POST', ajaxURL: 'imageMaker.php', ajaxCache: true, ajaxData: 'ajaxData',	//Ajax request setting
-		startXHR: function(e, file){},	//XHR
-		progressXHR: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	//XHR
-		endXHR: function(e, file){
-			if(e.target.error) console.error(e.target.error.name);
-			file = e = undefined; if(!!~navigator.userAgent.toLowerCase().indexOf('msie')) CollectGarbage();
-		},	//XHR
+		startXHR: function(e, file){},	//startXHR
+		progressXHR: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	//progressXHR
 		loadXHR: function(e, file){
 			var progress = html5.progress(file), myProgress = document.getElementById('myProgress'),
 				optProgress = JSON.parse(myProgress.getAttribute('data-progress')),
@@ -80,8 +75,12 @@ $(function(){
 			myProgress.getContext('2d').fillRect(0, 0, progress*myProgress.width, myProgress.height);
 			myProgress.getContext('2d').fillStyle = optProgress.txtRGB;
 			myProgress.getContext('2d').fillText(progTxt, optText.x, optText.y, myProgress.width);
-		},	//XHR
-		errorXHR: function(e, file){}	//XHR
+		},	//loadXHR
+		endXHR: function(e, file){
+			if(e.target.error) console.error(e.target.error.name);
+			file = e = undefined; if(!!~navigator.userAgent.toLowerCase().indexOf('msie')) CollectGarbage();
+		},	//endXHR
+		errorXHR: function(e, file){}	//errorXHR
 	};
 	html5.upload(options);
 });
@@ -193,13 +192,13 @@ function imageClick() {
 <div class="textbox"><p><b>dropdown: function(e){}</b> &nbsp; //action of upload dropdown <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>startReader: function(e, file){}</b> &nbsp; //setting the fileAPI start event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>progressReader: function(e, file){}</b> &nbsp; //setting the fileAPI progress event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>endReader: function(e, file){}</b> &nbsp; //setting the fileAPI end event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>loadReader: function(e, file){}</b> &nbsp; //setting the fileAPI load event <b>Default: {}</b></p></div>
+<div class="textbox"><p><b>endReader: function(e, file){}</b> &nbsp; //setting the fileAPI end event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>abortReader: function(e, file){}</b> &nbsp; //setting the fileAPI abort event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>startXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR start event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>progressXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR progress event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>endXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR end event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>loadXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR load event <b>Default: {}</b></p></div>
+<div class="textbox"><p><b>endXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR end event <b>Default: {}</b></p></div>
 <div class="textbox"><p><b>errorXHR: function(e, file){}</b> &nbsp; //setting the ajaxXHR error event <b>Default: {}</b></p></div>
 </section><hr>
 

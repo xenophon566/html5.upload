@@ -98,8 +98,8 @@ var html5 = (function(){
 		eval('reader.'+settings.readMethod+'(file)');
 		reader.onloadstart = function(e) { settings.startReader(e, file) };
 		reader.onprogress = function(e) { settings.progressReader(e, file) };
-		reader.onloadend = function(e) { settings.endReader(e, file); counter++; };
-		reader.onload = function(e) { settings.loadReader(e, file) };
+		reader.onload = function(e) { settings.loadReader(e, file); counter++; };
+		reader.onloadend = function(e) { settings.endReader(e, file); uploadQueue(); };
 		reader.onabort = function(e) { settings.abortReader(e, file) };
 		if(!file) settings.abortReader(file);
     }
@@ -115,8 +115,8 @@ var html5 = (function(){
 				var xhr = $.ajaxSettings.xhr();
 				xhr.upload.onloadstart = function(e){ settings.startXHR(e, file) };
 				xhr.upload.onprogress = function(e){ settings.progressXHR(e, file) };
+				xhr.upload.onload = function(e){ settings.loadXHR(e, file) };
 				xhr.upload.onloadend = function(e){ settings.endXHR(e, file) };
-				xhr.upload.onload = function(e){ settings.loadXHR(e, file); uploadQueue(); };
 				xhr.upload.onerror = function(e){ settings.errorXHR(e, file); uploadQueue(); };
 				return xhr;
 			}
