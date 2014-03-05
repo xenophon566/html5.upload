@@ -23,7 +23,7 @@ var html5 = (function(){
 		mimeTypes: imageMime, mimeStrict: false,	//mimeTypes setting
 		numLimit: 100, numLimitTotal: 0,	//number setting
 		sizeLimitUni: 0, sizeLimitSet: 0, sizeLimitTotal: 0,	//size setting
-		ajaxType: 'POST', ajaxURL: 'imageMaker.php', ajaxCache: true, ajaxData: 'ajaxData',	//Ajax request setting
+		ajaxType: 'POST', ajaxURL: '', ajaxCache: true, ajaxData: 'ajaxData',	//Ajax request setting
 		dragenter: function(e){}, dragover: function(e){}, dragleave: function(e){}, dropdown: function(e){},	//DnD event setting
 		readMethod: 'readAsDataURL',	//FileReader method setting
 		startReader: function(e, file){}, progressReader: function(e, file){}, endReader: function(e, file){},

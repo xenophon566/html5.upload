@@ -126,7 +126,7 @@ function imageClick() {
 <!--html5Upload public function-->
 <br><p class="subtitle"><b>Public function in html5Upload</b></p>
 <div class="textbox"><p><b>paras : function(parameter){ return eval(parameter) }</b> &nbsp; //get the constant or variable in upload processing</p></div>
-<div class="textbox"><p><b>setParas : function(obj){ object = obj }</b> &nbsp; //set the constant or variable in protect object</p></div>
+<div class="textbox"><p><b>setParas : function(obj){ object = jQuery.extend(true, object, obj) }</b> &nbsp; //set the constant or variable in protect object</p></div>
 <div class="textbox"><p><b>progress : function(file){ return uploadProgress(file) }</b> &nbsp; //get the value of quantify in upload processing</p></div>
 <div class="textbox"><p><b>upload : function(options){ initial(options) }</b> &nbsp; //using the html5Upload plugin</p></div>
 <div class="textbox"><p><b>ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }</b> &nbsp; //transfer the file to server by ajax</p></div>
@@ -178,7 +178,7 @@ function imageClick() {
 <p>( including readAsText, readAsDataURL, readAsArrayBuffer, readAsBinaryString. )</p><br>
 <div class="textbox"><p><b>ajaxType</b> &nbsp; //setting the ajax request type <b>Default: POST</b></p></div>
 <p>( HTTP request methods including get and post. )</p><br>
-<div class="textbox"><p><b>ajaxURL</b> &nbsp; //setting the ajax request url <b>Default: imageMaker.php</b></p></div>
+<div class="textbox"><p><b>ajaxURL</b> &nbsp; //setting the ajax request url <b>Default: ' '</b></p></div>
 <p>( HTTP request server address. )</p><br>
 <div class="textbox"><p><b>ajaxCache</b> &nbsp; //setting the ajax request cache <b>Default: true</b></p></div>
 <p>( HTTP request ajax cache switch. )</p><br>
