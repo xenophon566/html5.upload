@@ -35,10 +35,10 @@ $(function(){
 			'3': {'spec': 'MAX', 'W': 700, 'H': 700},
 			'4': {'spec': 'MAX', 'W': 1400, 'H': 1400}
 		},
-		'uploadInfo': '#uploadInfo',
 		'thumbnail': {
 			'width': 120, 'height': 120
-		}
+		},
+		'thumbEvent': function(thumbnail){ $("#uploadInfo").append(thumbnail) }
 	};
 	var options = {
 		uploadArea: '#uploadArea', uploadButton: '#uploadButton', uploadAbort: '#uploadAbort',	//upload element
@@ -132,12 +132,12 @@ function imageClick() {
 <div class="textbox"><p><b>ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }</b> &nbsp; //transfer the file to server by ajax</p></div>
 <!--imageUtility parameter setting-->
 <br><p class="subtitle"><b>ImageUtility Parameter Setting( sample case )</b></p>
-<div class="textbox"><p><b>uploadInfo</b> &nbsp; //element of upload information <b>Default: #uploadInfo</b></p></div>
-<p>( setting the element name to upload information. )</p><br>
 <div class="textbox"><p><b>imgSize</b> &nbsp; //object of image scaling size <b>Default: Default scaling Object</b></p></div>
 <p>( setting the object of scaling size to upload image. )</p><br>
 <div class="textbox"><p><b>thumbnail</b> &nbsp; //object of thumbnail size <b>Default: Default thumbnail Object</b></p></div>
 <p>( setting the object of thumbnail. )</p><br>
+<div class="textbox"><p><b>thumbEvent</b> &nbsp; //event of upload thumbnail <b>Default: function(thumbnail){ }</b></p></div>
+<p>( setting the event to upload thumbnail. )</p><br>
 <!--imageUtility public function-->
 <br><p class="subtitle"><b>Public function in imageUtility( sample script )</b></p>
 <div class="textbox"><p><b>imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height)</b> &nbsp; //scaling image in maximum size</p></div>

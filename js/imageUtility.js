@@ -179,8 +179,8 @@ var imageUtility = (function(){
 			
 			var image = new Image(); image.src = e.target.result;
 			image.onload = function() {
-				var thumbnail = document.createElement("img"); thumbnail.src = imageUtility.thumbnail(image, object.thumbnail),
-					uploadInfo = object.uploadInfo || '#uploadInfo'; $(uploadInfo).append(thumbnail); thumbnail = undefined;
+				var thumbnail = document.createElement("img"); thumbnail.src = imageUtility.thumbnail(image, object.thumbnail);
+					object.thumbEvent(thumbnail); thumbnail = undefined;
 				for( var i in imgSize ) {
 					if( imgSize[i].spec == 'SQR' ) {
 						var sqrW = null, sqrH = null;
