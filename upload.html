@@ -55,7 +55,7 @@ $(function(){
 		loadReader: function(e, file){ imageUtility.readProcess(e, file, imageUtilityObj); },	//loadReader
 		endReader: function(e, file){
 			if(e.target.error) console.error(e.target.error.name);
-			file = e = undefined; if(!!~navigator.userAgent.toLowerCase().indexOf('msie')) CollectGarbage();
+			file = e = undefined; if(typeof(CollectGarbage) == "function") CollectGarbage();
 		},	//endReader
 		abortReader: function(e, file){ console.warn('Aborting'); if($("#myProgress").size()) $("#myProgress").hide(); }, //abortReader
 		ajaxType: 'POST', ajaxURL: 'imageMaker.php', ajaxCache: true, ajaxData: 'ajaxData',	//Ajax request setting
@@ -78,7 +78,7 @@ $(function(){
 		},	//loadXHR
 		endXHR: function(e, file){
 			if(e.target.error) console.error(e.target.error.name);
-			file = e = undefined; if(!!~navigator.userAgent.toLowerCase().indexOf('msie')) CollectGarbage();
+			file = e = undefined; if(typeof(CollectGarbage) == "function") CollectGarbage();
 		},	//endXHR
 		errorXHR: function(e, file){}	//errorXHR
 	};
@@ -142,10 +142,12 @@ function imageClick() {
 <br><p class="subtitle"><b>Public function in imageUtility( sample script )</b></p>
 <div class="textbox"><p><b>imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height)</b> &nbsp; //scaling image in maximum size</p></div>
 <div class="textbox"><p><b>imgResizeMIN : function(MIN_WIDTH, MIN_HEIGHT, width, height)</b> &nbsp; //scaling image in minimum size</p></div>
-<div class="textbox"><p><b>cutSquare : function(canvas, width, height)</b> &nbsp; //squared image cutter</p></div>
-<div class="textbox"><p><b>thumbnail : function(image, object)</b> &nbsp; //thumbnail of upload image</p></div>
-<div class="textbox"><p><b>canvas2JPEG : function(image, scale, mode)</b> &nbsp; //convert the canvas to JPEG image</p></div>
 <div class="textbox"><p><b>dataURL2Blob : function(dataURL, dataTYPE)</b> &nbsp; //convert the dataURL to blob url</p></div>
+<div class="textbox"><p><b>cutSquare : function(canvas, width, height)</b> &nbsp; //squared image cutter</p></div>
+<div class="textbox"><p><b>canvas2JPEG : function(image, scale, mode)</b> &nbsp; //convert the canvas to JPEG image</p></div>
+<div class="textbox"><p><b>thumbnail : function(image, object)</b> &nbsp; //thumbnail of upload image</p></div>
+<div class="textbox"><p><b>canvasWorker : function(image, file, thumbnail, imgSize, imgExif, sBuffer)</b> &nbsp; //using web worker to process image in background of client side</p></div>
+<div class="textbox"><p><b>canvasNoWorker : function(image, file, thumbnail, imgSize, imgExif)</b> &nbsp; //to process image in client side of single thread</p></div>
 <div class="textbox"><p><b>readProcess : function(e, file, object)</b> &nbsp; //fileAPI reader processor</p></div>
 </section><hr>
 

@@ -3,10 +3,12 @@
 * 
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.0.20140227
+* @Version 	release v3.6.20140417
 * @License 	under the MIT License
 **/
 var imageUtility = (function(){
+	var imgObj = [], imgReSize = [], pQueue = [], pCnt = 0, pFlag = true;
+	
 	var resizeMAX = function(MAX_WIDTH, MAX_HEIGHT, width, height) {
 		var ratio = 1; if( !width || !height ) return;
 		if( MAX_WIDTH && MAX_HEIGHT ) {
@@ -62,6 +64,7 @@ var imageUtility = (function(){
 			tByteBuffer = resultIMG.data,	//result image buffer
 			pxIndex = 0;	//number of total pixel
 		
+		//RGB of source to target
 		for( sy=0; sy<sh; sy++ ) {
 			ty = sy * scale; TY = 0 | ty; yIdx = 3 * TY * tw; crossY = (TY != (0 | ty + scale));
 			if(crossY) {
@@ -101,15 +104,16 @@ var imageUtility = (function(){
 			}
 		}
 
-		//convert float32 array into a UInt8Clamped Array
+		//RGBA of target to result canvas
 		for( sIdx=0, tIdx=0; pxIndex < tw*th; sIdx+=3, tIdx+=4, pxIndex++ ) {
 			tByteBuffer[tIdx + 0] = Math.ceil(tBuffer[sIdx + 0]);
 			tByteBuffer[tIdx + 1] = Math.ceil(tBuffer[sIdx + 1]);
 			tByteBuffer[tIdx + 2] = Math.ceil(tBuffer[sIdx + 2]);
 			tByteBuffer[tIdx + 3] = 255;
-		}
+		} resultCTX.putImageData(resultIMG, 0, 0);
 		
-		resultCTX.putImageData(resultIMG, 0, 0);
+		tByteBuffer = resultIMG = tBuffer = sBuffer = undefined;
+		
 		return resultCV;
 	}
 	
@@ -122,36 +126,19 @@ var imageUtility = (function(){
 			return resizeMIN(MIN_WIDTH, MIN_HEIGHT, width, height);
 		},
 		
+		dataURL2Blob : function(dataURL, dataTYPE) {
+			var binary = atob(dataURL.split(',')[1]), array = [];
+			for( var i=0; i<binary.length; i++ ) array.push(binary.charCodeAt(i));
+			return new Blob([new Uint8Array(array)], {type: dataTYPE});
+		},
+		
 		cutSquare : function(canvas, width, height) {
 			width = 0 | width; height = 0 | height;
 			length = width < height ? width : height; length -= 2;
 			cutPosX = 0 | (( width - length ) / 2); cutPosY = 0 | (( height - length ) / 2);
 			var newCanvas = document.createElement("canvas"); newCanvas.width = length; newCanvas.height = length;
 			newCanvas.getContext("2d").drawImage(canvas, cutPosX, cutPosY, length, length, 0, 0, length, length);
-			var strMime = "image/jpeg", strData = newCanvas.toDataURL(strMime);
-			return strData;
-		},
-		
-		thumbnail : function(image, object) {
-			var thumWidth = object.width || 100, thumHeight = object.height || 100;
-			if( thumWidth == thumHeight ) {
-				var	thuW = null, thuH = null;
-				if( image.width < image.height ) {
-					thuW = thumWidth;
-					var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
-				} else {
-					thuH = thumHeight;
-					var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
-				}
-				var thumbCV = imageUtility.canvas2JPEG(image, sizeArr[0], 'canvas'),
-					thumbDataUrl = imageUtility.cutSquare(thumbCV, sizeArr[1], sizeArr[2]),
-					imgBlobObj = imageUtility.dataURL2Blob(thumbDataUrl, 'image/jpeg'); thumbDataUrl = undefined;
-			} else {
-				var sizeArr = imageUtility.imgResizeMAX(thumWidth, thumHeight, image.width, image.height),
-					thumbDataUrl = imageUtility.canvas2JPEG(image, sizeArr[0], 'dataUrl'),
-					imgBlobObj = imageUtility.dataURL2Blob(thumbDataUrl, 'image/jpeg'); thumbDataUrl = undefined;
-			}
-			return window.URL.createObjectURL(imgBlobObj);
+			return newCanvas.toDataURL("image/jpeg");
 		},
 		
 		canvas2JPEG : function(image, scale, mode) {
@@ -161,49 +148,147 @@ var imageUtility = (function(){
 			return mode == 'canvas' ? fineCanvas : strData;
 		},
 		
-		dataURL2Blob : function(dataURL, dataTYPE) {
-			var binary = atob(dataURL.split(',')[1]), array = [];
-			for( var i=0; i<binary.length; i++ ) array.push(binary.charCodeAt(i));
-			return new Blob([new Uint8Array(array)], {type: dataTYPE});
+		thumbnail : function(image, object) {
+			var thumWidth = object.width || 100, thumHeight = object.height || 100;
+			var thuW = null, thuH = null;
+			if( image.width < image.height ) {
+				thuW = thumWidth;
+				var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
+			} else {
+				thuH = thumHeight;
+				var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
+			}
+			var thumbCV = imageUtility.canvas2JPEG(image, sizeArr[0], 'canvas');
+			var thumb_dataUrl = imageUtility.cutSquare(thumbCV, sizeArr[1], sizeArr[2]);
+			var imgBlobObj = imageUtility.dataURL2Blob(thumb_dataUrl, 'image/jpeg');
+			return window.URL.createObjectURL(imgBlobObj);
 		},
 		
-		readProcess : function(e, file, object) {
-			object = object || {};
-			var imgObj = [], imgSize = object.imgSize || {
-				'0': {'spec': 'SQR', 'W': 55, 'H': 55},
-				'1': {'spec': 'SQR', 'W': 200, 'H': 200},
-				'2': {'spec': 'MAX', 'W': 400, 'H': null},
-				'3': {'spec': 'MAX', 'W': 700, 'H': 700},
-				'4': {'spec': 'MAX', 'W': 1400, 'H': 1400}
-			};
-			
-			var image = new Image(); image.src = e.target.result;
-			image.onload = function() {
-				var thumbnail = document.createElement("img"); thumbnail.src = imageUtility.thumbnail(image, object.thumbnail);
-					object.thumbEvent(thumbnail); thumbnail = undefined;
-				for( var i in imgSize ) {
-					if( imgSize[i].spec == 'SQR' ) {
-						var sqrW = null, sqrH = null;
-						if( image.width < image.height )
-							var sizeArr = imageUtility.imgResizeMAX(imgSize[i].W+2, sqrH, image.width, image.height);
-						else
-							var sizeArr = imageUtility.imgResizeMAX(sqrW, imgSize[i].H+2, image.width, image.height);
-						var newCanvas = imageUtility.canvas2JPEG(image, sizeArr[0], 'canvas');
-						var strData = imageUtility.cutSquare(newCanvas, sizeArr[1], sizeArr[2]);
-					} else {
-						if( imgSize[i].spec == 'MAX' )
-							var sizeArr = imageUtility.imgResizeMAX(imgSize[i].W, imgSize[i].H, image.width, image.height);
-						else
-							var sizeArr = imageUtility.imgResizeMIN(imgSize[i].W, imgSize[i].H, image.width, image.height);
-						var strData = imageUtility.canvas2JPEG(image, sizeArr[0], 'dataUrl');
+		canvasWorker : function(image, file, thumbnail, imgSize, imgExif, sBuffer) {
+			var cv = document.createElement("canvas"); cv.width = image.width; cv.height = image.height;
+				cv.getContext("2d").drawImage(image, 0, 0);
+			var sw = cv.width, sh = cv.height, tw = Math.floor(sw * imgReSize[0].S), th = Math.floor(sh * imgReSize[0].S),
+				sBuffer = sBuffer || cv.getContext("2d").getImageData(0, 0, sw, sh);
+			var resultCV = document.createElement("canvas"); resultCV.width = tw; resultCV.height = th;
+			var resultCTX = resultCV.getContext("2d"), resultIMG = resultCTX.getImageData(0, 0, tw, th),
+				tByteBuffer = resultIMG.data, idx = Object.keys(imgSize).length - imgReSize.length;
+			var imageWorker = new Worker("/js/imageWorker.js");
+			imageWorker.postMessage({'sBuffer': sBuffer, 'scale': imgReSize[0].S, 'width': image.width, 'height': image.height});
+			imageWorker.onmessage = function(e) {
+				if(typeof(tByteBuffer.set) == "function") tByteBuffer.set(e.data);
+				else for(var i in e.data) tByteBuffer[i] = e.data[i];
+				resultCTX.putImageData(resultIMG, 0, 0);
+				if(imgSize[idx].spec == 'SQR') var strData = imageUtility.cutSquare(resultCV, imgReSize[0].W, imgReSize[0].H);
+				else var strData = resultCV.toDataURL("image/jpeg");
+				imgObj[idx] = [];
+				imgObj[idx][0] = strData; imgObj[idx][1] = file.type; imgObj[idx][2] = file.name;
+				imgObj[idx][3] = imgSize[idx].spec == 'SQR' ? imgSize[idx].W : 0 | imgReSize[0].W;
+				imgObj[idx][4] = imgSize[idx].spec == 'SQR' ? imgSize[idx].H : 0 | imgReSize[0].H;
+				imgObj[idx][5] = imgExif[0] || null; imgObj[idx][6] = imgExif[1] || null;
+				e.data = imageWorker = strData = resultIMG = undefined; imgReSize.shift();
+				if(imgReSize.length) imageUtility.canvasWorker(image, file, thumbnail, imgSize, imgExif, sBuffer);
+				else {
+					if(thumbnail.thumbnail) {
+						if(thumbnail.thumbnail.pick) {
+							var imgBlobObj = imageUtility.dataURL2Blob(imgObj[thumbnail.thumbnail.pick][0], 'image/jpeg');
+							var thumbBlobURL = window.URL.createObjectURL(imgBlobObj);
+						} else if(thumbnail.thumbnail.width || thumbnail.thumbnail.height) {
+							var thumbBlobURL = imageUtility.thumbnail(image, thumbnail.thumbnail);
+						}
+						var thumbImage = new Image(); thumbImage.src = thumbBlobURL;
+						thumbnail.thumbEvent(thumbImage); thumbImage = undefined;
 					}
-					//object of image upload
-					imgObj[i] = [];
-					imgObj[i][0] = strData; imgObj[i][1] = file.name; strData = undefined;
-					imgObj[i][2] = imgSize[i].spec == 'SQR' ? imgSize[i].W : 0 | sizeArr[1];
-					imgObj[i][3] = imgSize[i].spec == 'SQR' ? imgSize[i].H : 0 | sizeArr[2];
+					if( $("#uploadImage").size() ) core.portrait(imgObj);
+					else if( $("#profileEdImg").size() ) core.portrait(imgObj);
+					else if( $("#dal_photo_canvas").size() ) core.view.dal.photo(imgObj);
+					if( document.getElementsByClassName('c_upload_animation').length ) clearUploadAnimation();
+					sBuffer = imgObj = undefined; imgObj = [];
+					pFlag = true;
 				}
-				html5.ajaxTxing(imgObj, file);
+			}
+			imageWorker.onerror = function(e) { console.error(e.message +' in '+ e.filename + ' Line: ' + e.lineno) }
+		},
+		
+		canvasNoWorker : function(image, file, thumbnail, imgSize, imgExif) {
+			var idx = Object.keys(imgSize).length - imgReSize.length;
+			var resultCV = imageUtility.canvas2JPEG(image, imgReSize[0].S, "canvas");
+			if(imgSize[idx].spec == 'SQR') var strData = imageUtility.cutSquare(resultCV, imgReSize[0].W, imgReSize[0].H);
+			else var strData = resultCV.toDataURL("image/jpeg");
+			imgObj[idx] = [];
+			imgObj[idx][0] = strData; imgObj[idx][1] = file.type; imgObj[idx][2] = file.name;
+			imgObj[idx][3] = imgSize[idx].spec == 'SQR' ? imgSize[idx].W : 0 | imgReSize[0].W;
+			imgObj[idx][4] = imgSize[idx].spec == 'SQR' ? imgSize[idx].H : 0 | imgReSize[0].H;
+			imgObj[idx][5] = imgExif[0] || null; imgObj[idx][6] = imgExif[1] || null;
+			strData = resultCV = undefined; imgReSize.shift();
+			if(imgReSize.length) imageUtility.canvasNoWorker(image, file, thumbnail, imgSize, imgExif);
+			else {
+				if(thumbnail.thumbnail) {
+					if(thumbnail.thumbnail.pick) {
+						var imgBlobObj = imageUtility.dataURL2Blob(imgObj[thumbnail.thumbnail.pick][0], 'image/jpeg');
+						var thumbBlobURL = window.URL.createObjectURL(imgBlobObj);
+					} else if(thumbnail.thumbnail.width || thumbnail.thumbnail.height) {
+						var thumbBlobURL = imageUtility.thumbnail(image, thumbnail.thumbnail);
+					}
+					var thumbImage = new Image(); thumbImage.src = thumbBlobURL;
+					thumbnail.thumbEvent(thumbImage); thumbImage = undefined;
+				}
+				if( $("#uploadImage").size() ) core.portrait(imgObj);
+				else if( $("#profileEdImg").size() ) core.portrait(imgObj);
+				else if( $("#dal_photo_canvas").size() ) core.view.dal.photo(imgObj);
+				if( document.getElementsByClassName('c_upload_animation').length ) clearUploadAnimation();
+				imgObj = undefined; imgObj = [];
+				pFlag = true;
+			}
+		},
+		
+		readProcess : function(e, file, object, imgExif) {
+			if( file.name != html5.paras('object').imgExifName ) imgExif = [0, 0];
+			object = object || {}; imgExif = imgExif || [0, 0];
+			pQueue[pCnt] = {
+				'eDataURL': JSON.stringify(e.target.result),
+				'file': JSON.stringify({'type': file.type, 'name': file.name}),
+				'imgExif': JSON.stringify(imgExif)
+			}; pCnt++;
+			var pId = setInterval(processInterval, 400);
+			function processInterval() {
+				if(pFlag) {
+					var pObject = pQueue.shift(); pCnt--; clearInterval(pId); pFlag = false;
+					eDataURL	= JSON.parse(pObject['eDataURL']);
+					file		= JSON.parse(pObject['file']);
+					imgExif		= JSON.parse(pObject['imgExif']);
+					var thumbnail = {
+						'thumbnail': object.thumbnail,
+						'thumbEvent': object.thumbEvent
+					};
+					var imgSize = object.imgSize || {
+						'0': {'spec': 'SQR', 'W': 55, 'H': 55},
+						'1': {'spec': 'SQR', 'W': 200, 'H': 200},
+						'2': {'spec': 'MAX', 'W': 400, 'H': null},
+						'3': {'spec': 'MAX', 'W': 700, 'H': 700},
+						'4': {'spec': 'MAX', 'W': 1400, 'H': 1400}
+					};
+					var image = new Image(); image.src = eDataURL;
+					image.onload = function() {
+						for( var i in imgSize ) {
+							if( imgSize[i].spec == 'SQR' ) {
+								var sqrW = null, sqrH = null;
+								if( image.width < image.height )
+									var sizeArr = imageUtility.imgResizeMAX(imgSize[i].W+2, sqrH, image.width, image.height);
+								else
+									var sizeArr = imageUtility.imgResizeMAX(sqrW, imgSize[i].H+2, image.width, image.height);
+							} else {
+								if( imgSize[i].spec == 'MAX' )
+									var sizeArr = imageUtility.imgResizeMAX(imgSize[i].W, imgSize[i].H, image.width, image.height);
+								else
+									var sizeArr = imageUtility.imgResizeMIN(imgSize[i].W, imgSize[i].H, image.width, image.height);
+							}
+							imgReSize[i] = {'S': sizeArr[0], 'W': sizeArr[1], 'H': sizeArr[2]};
+						}
+						if(typeof window.Worker == "function") imageUtility.canvasWorker(image, file, thumbnail, imgSize, imgExif);
+						else imageUtility.canvasNoWorker(image, file, thumbnail, imgSize, imgExif);
+						e = file = image = eDataURL = pObject = undefined;
+					}
+				}
 			}
 		}
 	};
