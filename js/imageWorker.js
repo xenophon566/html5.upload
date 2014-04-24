@@ -1,3 +1,11 @@
+/**
+* My Upload Plugin - Web Worker
+* 
+* @Date 	20140205
+* @Author 	ShawnWu
+* @Version 	release v3.8.20140423
+* @License 	under the MIT License
+**/
 self.addEventListener('message', function(e){
 	var sBufferData = e.data['sBuffer'].data, scale = e.data['scale'], cvWidth = e.data['width'], cvHeight = e.data['height'];	//from main thread
 	var sq = scale*scale,	//pixel of source within target

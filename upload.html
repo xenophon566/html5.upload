@@ -66,7 +66,7 @@ $(function(){
 				optProgress = JSON.parse(myProgress.getAttribute('data-progress')),
 				optText = JSON.parse(myProgress.getAttribute('data-text')),
 				optValue = JSON.parse(myProgress.getAttribute('data-value')),
-				progTxt = +(optText.show) ? optText.content[0] + html5.paras('counter')
+				progTxt = +(optText.show) ? optText.content[0] + html5.paras('object')['counter']
 							+optText.content[1] + html5.paras('totalNumber') + optText.content[2] : '',
 				progVal = (Math.round(progress*10)/10)*100 + optValue.sign;
 			if(optValue.pos != 'none') progTxt = (optValue.pos == 'right') ? progTxt+' '+progVal : progVal+' '+progTxt;
@@ -122,7 +122,7 @@ function imageClick() {
 </div>
 <p>This is a upload plugin based on<b>html5 fileAPI( FileReader )</b>, it support any MIME types of file upload and event customized.</p>
 <p>Design your own script to complete specify upload task in html5Upload plugin.</p>
-<p><b>( Using your own file processing and server side script to complete specify upload task )</b></p>
+<p><b>( Please execute the plugin in your server, may IE will be slow than other browser. )</b></p>
 <!--html5Upload public function-->
 <br><p class="subtitle"><b>Public function in html5Upload</b></p>
 <div class="textbox"><p><b>paras : function(parameter){ return eval(parameter) }</b> &nbsp; //get the constant or variable in upload processing</p></div>
@@ -146,8 +146,8 @@ function imageClick() {
 <div class="textbox"><p><b>cutSquare : function(canvas, width, height)</b> &nbsp; //squared image cutter</p></div>
 <div class="textbox"><p><b>canvas2JPEG : function(image, scale, mode)</b> &nbsp; //convert the canvas to JPEG image</p></div>
 <div class="textbox"><p><b>thumbnail : function(image, object)</b> &nbsp; //thumbnail of upload image</p></div>
-<div class="textbox"><p><b>canvasWorker : function(image, file, thumbnail, imgSize, imgExif, sBuffer)</b> &nbsp; //using web worker to process image in background of client side</p></div>
-<div class="textbox"><p><b>canvasNoWorker : function(image, file, thumbnail, imgSize, imgExif)</b> &nbsp; //to process image in client side of single thread</p></div>
+<div class="textbox"><p><b>canvasWorker : function(image, file, thumbnail, imgSize, sBuffer)</b> &nbsp; //using web worker to process image in background of client side</p></div>
+<div class="textbox"><p><b>canvasNoWorker : function(image, file, thumbnail, imgSize)</b> &nbsp; //to process image in client side of single thread</p></div>
 <div class="textbox"><p><b>readProcess : function(e, file, object)</b> &nbsp; //fileAPI reader processor</p></div>
 </section><hr>
 
