@@ -19,6 +19,7 @@ Design your own script to complete specify upload task in html5Upload plugin.
 2. Free to setting parameters and events of upload
 3. All kinds of FileReader methods to reading a upload file
 4. Using custom script to complete specified upload task
+5. Run image processing code in background by web worker
 
 ####Base on
 HTML5, Javascript, JQuery
