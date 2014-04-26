@@ -172,7 +172,7 @@ var imageUtility = (function(){
 			var resultCV = document.createElement("canvas"); resultCV.width = tw; resultCV.height = th;
 			var resultCTX = resultCV.getContext("2d"), resultIMG = resultCTX.getImageData(0, 0, tw, th),
 				tByteBuffer = resultIMG.data, idx = Object.keys(imgSize).length - imgReSize.length;
-			var imageWorker = new Worker("/js/imageWorker.js");
+			var imageWorker = new Worker("js/imageWorker.js");
 			imageWorker.postMessage({'sBuffer': sBuffer, 'scale': imgReSize[0].S, 'width': image.width, 'height': image.height});
 			imageWorker.onmessage = function(e) {
 				if(typeof(tByteBuffer.set) == "function") tByteBuffer.set(e.data);
