@@ -1,22 +1,18 @@
 Html5 Upload
 =========
 
-### html5.upload project under the MIT License
+### html5.upload project
 
-#### Name 
-Html5.upload
+#### Describe
+This is a plugin based on html5 fileAPI(FileReader) for file processing.
+imageUtility.js is a example for image processing.
 
 #### Type 
 Plugin
 
-#### Describe
-This is a upload plugin based on html5 fileAPI(FileReader), it support any MIME types of file upload.
-Design your own script to complete upload task by html5Upload plugin.
-
 #### Feature 
-1. Multiple MIME types supported.
-2. Read uploaded file through FileReader API.
-3. Custom script to complete uploaded files.
+1. All MIME types supported.
+2. Plug your own script to process file.
 
 #### Base on
 HTML5, Javascript, JQuery
