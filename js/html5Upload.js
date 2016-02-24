@@ -6,8 +6,9 @@
 * @Version 	release v3.0.20140227
 * @License 	under the MIT License
 **/
-var html5 = (function(){
-	var reader = new FileReader(), queue = [], object = {},
+var object = {};
+function html5Upload() {
+	var reader = new FileReader(), queue = [],
 		counter = 0, totalNumber = 0, numSet = 0, sizeSet = 0, sizeTotal = 0, sizeProgress = 0,
 		imageMime = ['image/png', 'image/jpeg', 'image/gif', 'image/ief', 'image/tiff', 'image/x-cmu-raster', 'image/x-ms-bmp',
 					'image/x-portable-anymap', 'image/x-portable-bitmap', 'image/x-portable-graymap', 'image/x-portable-pixmap',
@@ -36,44 +37,51 @@ var html5 = (function(){
 		settings = jQuery.extend(settings, options);
 		//drag and drop in window
 		$(window).bind("dragover", function(e){e.preventDefault()});
-		$(window).bind("drop", function(e){e.preventDefault()});
+		$(window).bind("drop", function(e){
+            if(e.target.id != 'imr_c_image_drag_area')
+                uploadImgFocus = e.target.id || e.target.offsetParent.id || e.target.offsetParent.offsetParent.id;
+			e.preventDefault();
+		});
 		//drag and drop style
 		$(settings.uploadArea).bind("dragenter", settings.dragenter);
 		$(settings.uploadArea).bind("dragover", settings.dragover);
 		$(settings.uploadArea).bind("dragleave", settings.dragleave);
 		$(settings.uploadArea).bind("drop", settings.dropdown);
 		//drop or select files
-		$(settings.uploadButton).bind("change", function(e){getFiles(e.target.files)});
+		$(settings.uploadButton).bind("change", function(e){
+            getFiles(e.target.files);
+            if($(this).data('replace')) $(this).replaceWith($(this).clone(true));
+        });
 		$(settings.uploadArea).on("drop", function(e){getFiles(e.originalEvent.dataTransfer.files)});
 		//abort the upload
 		$(settings.uploadAbort).bind("click", function(){ queue=['']; reader.abort(); totalNumber -= totalNumber-counter; });
     }
 	
 	var getFiles = function(filelist) {
-		if( !filelist || !filelist.length ) return;
+		if(!filelist || !filelist.length) return;
 		//number limit of upload file
-		var list = {}; for( var i in filelist ) list[i] = filelist[i];
-		if( settings.numLimitTotal && totalNumber + filelist.length > settings.numLimitTotal ) {
-			if( filelist.length != totalNumber + filelist.length - settings.numLimitTotal ) {
-				for( var i=0; i<filelist.length-(settings.numLimitTotal-totalNumber); i++ ) {
-					for( var key in filelist ) if( key == filelist.length - 1 - i ) delete list[key];
+		var list = {}; for(var i in filelist) list[i] = filelist[i];
+		if(settings.numLimitTotal && totalNumber + filelist.length > settings.numLimitTotal) {
+			if(filelist.length != totalNumber + filelist.length - settings.numLimitTotal) {
+				for(var i=0; i<filelist.length-(settings.numLimitTotal-totalNumber); i++) {
+					for(var key in filelist) if(key == filelist.length - 1 - i) delete list[key];
 				} list.length = settings.numLimitTotal - totalNumber;
 			} else { console.error('Out of Total number'); return; }
 		}
 		//unit size limit of upload file
         var numStatement = settings.numLimit ? 'i<list.length && i<settings.numLimit' : 'i<list.length',
 			sizeStatement = settings.sizeLimitUni ? 'list[i].size < settings.sizeLimitUni' : 'true';
-		numSet=0; sizeSet=0; for( var i=0; eval(numStatement); i++ ) {
-			if( eval(sizeStatement) ) {
+		numSet=0; sizeSet=0; for(var i=0; eval(numStatement); i++) {
+			if(eval(sizeStatement)) {
 				sizeSet += list[i].size; numSet++;
 				queue.push(list[i]);
 			} else console.error('Out of Unit size');
         }
 		//upload size filter
-		if(settings.sizeLimitSet) if( sizeSet > settings.sizeLimitSet ) {
+		if(settings.sizeLimitSet) if(sizeSet > settings.sizeLimitSet) {
 			console.error('Out of Set size'); queue=[]; return;
 		} sizeTotal += sizeSet;
-		if(settings.sizeLimitTotal) if( sizeTotal > settings.sizeLimitTotal ) {
+		if(settings.sizeLimitTotal) if(sizeTotal > settings.sizeLimitTotal) {
 			console.error('Out of Total size'); sizeTotal -= sizeSet; queue=[]; return;
 		} totalNumber += numSet;
 		
@@ -81,11 +89,14 @@ var html5 = (function(){
     }
 	
     var uploadQueue = function() {
-		if( queue.length ) {
+		if(queue.length) {
             var file = queue.shift();
-			if( !!~settings.mimeTypes.indexOf(file.type) ) fileUpload(file);
-			else if( !settings.mimeStrict && !file.type ) fileUpload(file);
-			else { console.error('Wrong or Empty file type'); uploadQueue(); }
+			if(!!~settings.mimeTypes.indexOf(file.type)) fileUpload(file);
+			else if(!settings.mimeStrict && !file.type) fileUpload(file);
+			else {
+                /*console.error('Wrong or Empty file type');/**/
+                totalNumber--; fileUpload(file);
+            }
         }
     }
 	
@@ -134,4 +145,4 @@ var html5 = (function(){
 		
 		ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }
 	}
-})();
+}
