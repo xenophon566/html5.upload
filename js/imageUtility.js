@@ -1,14 +1,18 @@
 /**
-* My Upload Plugin - Image Utility Tool
-* 
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.6.20140417
+* @Version 	release v4.0.20160225
+* @Describe upload image example
 * @License 	under the MIT License
 **/
 var imageUtility = (function(){
-	var imgObj = [], imgReSize = [], pQueue = [], pCnt = 0, pLock = true, uploadCounter = 0, photoSizeArr = [];
-	
+	var imgObj = [], imgReSize = [],   // image size arrays
+        pQueue = [], pCnt = 0, pLock = true,    // file queues
+        uploadCounter = 0,      // upload files counter
+        photoSizeArr = [];      // upload files size array
+
 	var resizeMAX = function(MAX_WIDTH, MAX_HEIGHT, width, height) {
 		var ratio = 1; if( !width || !height ) return;
 		if( MAX_WIDTH && MAX_HEIGHT ) {
@@ -24,24 +28,24 @@ var imageUtility = (function(){
 		}
 		return [ratio, width, height];
 	}
-	
+
 	var resizeMIN = function(MIN_WIDTH, MIN_HEIGHT, width, height) {
 		var ratio = 1; if( !width || !height ) return;
-		if( MIN_WIDTH && MIN_HEIGHT ) {			
+		if( MIN_WIDTH && MIN_HEIGHT ) {
 			if( width < height ) {
 				if( width < MIN_WIDTH ) { ratio = MIN_WIDTH/width; height *= MIN_WIDTH/width; width = MIN_WIDTH; }
 			} else {
 				if( height < MIN_HEIGHT ) { ratio = MIN_HEIGHT/height; width *= MIN_HEIGHT/height; height = MIN_HEIGHT; }
 			}
-		} else if( MIN_WIDTH && !MIN_HEIGHT ) {			
+		} else if( MIN_WIDTH && !MIN_HEIGHT ) {
 			if( width < MIN_WIDTH ) { ratio = MIN_WIDTH/width; height *= MIN_WIDTH/width; width = MIN_WIDTH; }
 		} else if( !MIN_WIDTH && MIN_HEIGHT ) {
 			if( height < MIN_HEIGHT ) { ratio = MIN_HEIGHT/height; width *= MIN_HEIGHT/height; height = MIN_HEIGHT; }
 		}
 		return [ratio, width, height];
 	}
-	
-    var drawRotated = function(image, cv, ctx, scale, degrees) {
+
+	var drawRotated = function(image, cv, ctx, scale, degrees) {
         if(degrees == 90 || degrees == -90) { var tmp = cv.width; cv.width = cv.height; cv.height = tmp; }
         ctx.clearRect(0, 0, cv.width, cv.height);
         ctx.save();
@@ -50,33 +54,16 @@ var imageUtility = (function(){
         ctx.drawImage(image, 0, 0, image.width, image.height, -scale[1]/2, -scale[2]/2, scale[1], scale[2]);
         ctx.restore();
     }
-    
-    var roughScale = function(image, scale, object) {
-        var cv = document.createElement('canvas'), ctx = cv.getContext("2d");
-        cv.width = scale[1]; cv.height = scale[2];
-        var resultCV = document.createElement('canvas'), resultCTX = resultCV.getContext('2d');
-            resultCV.width = cv.width; resultCV.height = cv.height;
-        var oc = document.createElement('canvas'), octx = oc.getContext('2d');
-        oc.width = image.width * 0.5; oc.height = image.height * 0.5;
-        octx.drawImage(image, 0, 0, oc.width, oc.height);
-        octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5);
-        ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, cv.width, cv.height);
-        resultCTX.drawImage(cv, 0, 0);
-        if(object.canvasRotate)
-            drawRotated(image, resultCV, resultCTX, scale, imageUtility.photoDegree(object.imgExif[2]));
-        
-        return resultCV;
-    }
-    
-    var normalScale = function(image, scale, object) {
+
+    var normalQuality = function(image, scale, object) {
         var resultCV = document.createElement("canvas"); resultCV.width = scale[1] || 55; resultCV.height = scale[2] || 55;
         var ctx = resultCV.getContext("2d");
         if(object.canvasRotate) drawRotated(image, resultCV, ctx, scale, imageUtility.photoDegree(object.imgExif[2]));
         else ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, scale[1], scale[2]);
         return resultCV;
     }
-    
-	var fineScale = function(image, scale, object) {
+
+	var fineQuality = function(image, scale, object) {
 		//get source and target canvas
 		var scaleArr = scale;
         var scale = scale[0];
@@ -93,14 +80,14 @@ var imageUtility = (function(){
 			crossX = false, crossY = false,	//scaled px cross current px border
 			sBuffer = cv.getContext("2d").getImageData(0, 0, sw, sh).data,	//get source buffer 8 bit rgba
 			tBuffer = new Float32Array(3 * sw * sh); //put target buffer Float32 rgb
-		
+
 		//create result canvas
 		var resultCV = document.createElement("canvas"); resultCV.width = tw; resultCV.height = th;
 		var resultCTX = resultCV.getContext("2d"),	//canvas result context
 			resultIMG = resultCTX.getImageData(0, 0, tw, th),	//result image
 			tByteBuffer = resultIMG.data,	//result image buffer
 			pxIndex = 0;	//number of total pixel
-		
+
 		//RGB of source to target
 		for( sy=0; sy<sh; sy++ ) {
 			ty = sy * scale; TY = 0 | ty; yIdx = 3 * TY * tw; crossY = (TY != (0 | ty + scale));
@@ -142,32 +129,33 @@ var imageUtility = (function(){
 		}
 
 		//RGBA of target to result canvas
-		for( sIdx=0, tIdx=0; pxIndex < tw*th; sIdx+=3, tIdx+=4, pxIndex++ ) {
+		for(sIdx=0, tIdx=0; pxIndex < tw*th; sIdx+=3, tIdx+=4, pxIndex++) {
 			tByteBuffer[tIdx + 0] = Math.ceil(tBuffer[sIdx + 0]);
 			tByteBuffer[tIdx + 1] = Math.ceil(tBuffer[sIdx + 1]);
 			tByteBuffer[tIdx + 2] = Math.ceil(tBuffer[sIdx + 2]);
 			tByteBuffer[tIdx + 3] = 255;
 		} resultCTX.putImageData(resultIMG, 0, 0);
-		
+
         if(object.canvasRotate) drawRotated(image, resultCV, resultCTX, scaleArr, imageUtility.photoDegree(object.imgExif[2]));
-        
+
 		tByteBuffer = resultIMG = tBuffer = sBuffer = null;
         if(typeof(CollectGarbage) == "function") CollectGarbage();
-		
+
 		return resultCV;
 	}
-    
-    var imgObjPackage = function(idx, strData, file, imgSize, imgExif) {
+
+	var imgObjPackage = function(idx, strData, file, imgSize, imgExif) {
         imgObj[idx] = [];
         imgObj[idx][0] = strData; imgObj[idx][1] = file.type; imgObj[idx][2] = file.name;
         imgObj[idx][3] = imgSize[idx].spec == 'SQR' ? imgSize[idx].W : 0 | imgReSize[0].W;
         imgObj[idx][4] = imgSize[idx].spec == 'SQR' ? imgSize[idx].H : 0 | imgReSize[0].H;
         imgObj[idx][5] = imgExif[0] || null; imgObj[idx][6] = imgExif[1] || null;
-        imgObj[idx][7] = imgExif[2] || null; imgObj[idx][8] = file.category || null;
+        imgObj[idx][7] = imgExif[2] || null;
     }
-    
+
     var finishUpload = function(image, file, thumbnail, imgSize, imgExif, object) {
-        if(object.canvasRotate) for(var i in imgObj) imgObj[i][7] = 1;
+    	var html5 = new html5Upload();
+    	if(object.canvasRotate) for(var i in imgObj) imgObj[i][7] = 1;
         if(thumbnail.thumbnail) {
             if(thumbnail.thumbnail.pick) {
                 //Pick a thumbnail
@@ -177,55 +165,38 @@ var imageUtility = (function(){
                 //Refactor a thumbnail
                 var thumbBlobURL = imageUtility.thumbnail(image, thumbnail.thumbnail);
             }
+
             var thumbImage = new Image(); thumbImage.src = thumbBlobURL;
-            thumbImage.deg = imageUtility.photoDegree(imgObj[thumbnail.thumbnail.pick][7]) + 'deg';
+            var thumbDegPick = thumbnail.thumbnail.pick || 0;
+            thumbImage.deg = imageUtility.photoDegree(imgObj[thumbDegPick][7]) + 'deg';
+
             thumbnail.thumbEvent(thumbImage); thumbImage = null;
             if(typeof(CollectGarbage) == "function") CollectGarbage();
         }
-        
-        var sellFlagArr = ['#sellBtn_0', '#sellBtn_1', '#sellBtn_2', '#sellBtn_3', 'sell_img_0', 'sell_img_1', 'sell_img_2', 'sell_img_3', 'sell_img_tn_0', 'sell_img_tn_1', 'sell_img_tn_2', 'sell_img_tn_3'];
-        if(file.category != 'rtc') {
-            if( uploadImgFocus == '#acPortraitBtn' || uploadImgFocus == 'acPortrait' )
-                core.portrait(imgObj);
-            else if( !!~sellFlagArr.indexOf(uploadImgFocus) )
-                system.ext.addImage((uploadImgFocus).slice(-1), imgObj);
-            else if( uploadImgFocus == '#profImgBtn' || uploadImgFocus == 'dal_photo_canvas' )
-                core.view.dal.photo(imgObj);
-            else if( uploadImgFocus == '#profPortraitBtn' || uploadImgFocus == 'profPortrait' )
-                core.portrait(imgObj);
-            else if( uploadImgFocus == '#albumImgBtn' || uploadImgFocus == 'albumImg' )
-                core.view.upload(imgObj);
-            else if( uploadImgFocus == '#loginPassphotoBtn' || uploadImgFocus == 'loginPassphoto' ) {
-                $("#mask_action_btn2").html(config.language.login.btn[0]);	//Login
-                maskUploadImgLock = true;
-            } else if( uploadImgFocus == '#acBindPassphotoBtn' || uploadImgFocus == 'acBindPassphoto' ) {
-                $("#mask_action_btn1").html(config.language.account['btn'][2]);	//Link
-                maskUploadImgLock = true;
-            } else if( uploadImgFocus == '#authPassphotoBtn' || uploadImgFocus == 'authPassphoto' ) {
-                $("#auth_submit_btn").html(config.language.btn[0] + '>');   //Submit
-            }
-        } else system.messenger.uploadImage(imgObj);
-        
+
+        html5.setParas({'counter': uploadCounter});
+        html5.ajaxTxing(imgObj, file);
+
         photoSizeArr.shift(); if(!pCnt) photoSizeArr = [];
         image = file = thumbnail = imgSize = imgExif = imgObj = null;
         if(typeof(CollectGarbage) == "function") CollectGarbage();
     }
-    
+
 	return {
 		imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height) {
 			return resizeMAX(MAX_WIDTH, MAX_HEIGHT, width, height);
 		},
-		
+
 		imgResizeMIN : function(MIN_WIDTH, MIN_HEIGHT, width, height) {
 			return resizeMIN(MIN_WIDTH, MIN_HEIGHT, width, height);
 		},
-		
+
 		dataURL2Blob : function(dataURL, dataTYPE) {
 			var binary = atob(dataURL.split(',')[1]), array = [];
 			for( var i=0; i<binary.length; i++ ) array.push(binary.charCodeAt(i));
 			return new Blob([new Uint8Array(array)], {type: dataTYPE || 'image/jpeg'});
 		},
-		
+
 		cutSquare : function(canvas, width, height) {
 			width = 0 | width; height = 0 | height;
 			length = width < height ? width : height; length -= 2;
@@ -234,40 +205,32 @@ var imageUtility = (function(){
 			newCanvas.getContext("2d").drawImage(canvas, cutPosX, cutPosY, length, length, 0, 0, length, length);
 			return newCanvas.toDataURL("image/jpeg");
 		},
-		
-        canvas2JPEG : function(image, scale, mode, object) {
+
+		canvas2JPEG : function(image, scale, mode, object) {
             var quality = scale[3] || object.quality || 'normal';
-            if(quality == 'rough') var resultCanvas = roughScale(image, scale, object);
-            else if(quality == 'normal') var resultCanvas = normalScale(image, scale, object);
-            else var resultCanvas = fineScale(image, scale, object);
+            if(quality == 'normal') var resultCanvas = normalQuality(image, scale, object);
+            else var resultCanvas = fineQuality(image, scale, object);
             var strData = resultCanvas.toDataURL("image/jpeg");
             return mode == 'canvas' ? resultCanvas : strData;
 		},
-        
+
 		thumbnail : function(image, object) {
-			var object = object || {},  //Refactor a thumbnail in this function
-                quality = object.quality || 'normal', isSquare = object.isSquare || false,
-                thumWidth = object.width || 100, thumHeight = object.height || 100,
-                thuW = thuH = null;     //Limitation of Width or Height for Aspect Ratio
-			if(image.width < image.height) {
+			var thumWidth = object.width || 100, thumHeight = object.height || 100;
+			var thuW = null, thuH = null;
+			if( image.width < image.height ) {
 				thuW = thumWidth;
 				var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
-			} else if(image.width >= image.height) {
+			} else {
 				thuH = thumHeight;
 				var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
-			}   //Get Aspect Ratio Size Array
-            
-            if(isSquare) {
-                var thumbCV = imageUtility.canvas2JPEG(image, sizeArr, 'canvas', object);
-                var thumb_dataUrl = imageUtility.cutSquare(thumbCV, sizeArr[1], sizeArr[2]);
-            } else {
-                var thumb_dataUrl = imageUtility.canvas2JPEG(image, sizeArr, 'dataurl', object);
-            } var imgBlobObj = imageUtility.dataURL2Blob(thumb_dataUrl, 'image/jpeg');
-			
-            return window.URL.createObjectURL(imgBlobObj);
+			}
+			var thumbCV = imageUtility.canvas2JPEG(image, sizeArr, 'canvas', object);
+			var thumb_dataUrl = imageUtility.cutSquare(thumbCV, sizeArr[1], sizeArr[2]);
+			var imgBlobObj = imageUtility.dataURL2Blob(thumb_dataUrl, 'image/jpeg');
+			return window.URL.createObjectURL(imgBlobObj);
 		},
-		
-        photoDegree : function(orit){
+
+		photoDegree : function(orit){
             var deg = 0;
             switch(orit) {
                 case 1: deg = 0; break; case 3: deg = 180; break;
@@ -276,8 +239,8 @@ var imageUtility = (function(){
             }
             return deg;
         },
-        
-        getSize : function(_FILE_) {
+
+		getSize : function(_FILE_) {
             var _A_ = [_FILE_], _B_ = 0; for(var _C_=0; _C_<_A_.length; _C_++) {
                 switch(typeof _A_[_C_]) {
                     case "number": _B_ += 8; break;
@@ -294,15 +257,15 @@ var imageUtility = (function(){
                 }
             } return _B_;
         },
-        
+
         getDelay : function(){
-            var delayTime = !!window.webkitURL ? 400 : navigator.buildID ? 3200 : 5600;
+            var delayTime = !!window.URL ? 400 : navigator.buildID ? 3200 : 5600;
             var delayIncrease = !!window.webkitURL ? 100 : navigator.buildID ? 800 : 2400;
             if((+eval(photoSizeArr.join('+'))/1000000)*10 > 500)
                 delayTime += (0 | (+eval(photoSizeArr.join('+'))/1000000)*10 / 500) * delayIncrease;
             return delayTime;
         },
-        
+
         imgAspectRatio : function(image, imgSize, imgQuality) {
             for(var i in imgSize) {
                 if(imgSize[i].spec == 'SQR') {
@@ -320,7 +283,7 @@ var imageUtility = (function(){
                 imgReSize[i] = {'S': sizeArr[0], 'W': sizeArr[1], 'H': sizeArr[2], 'Q': imgQuality[i] || 'normal'};
             } return sizeArr;
         },
-        
+
         imageProcessor: function(image, file, thumbnail, imgSize, imgExif, object, sBuffer) {
             var html5 = new html5Upload(), idx = Object.keys(imgSize).length - imgReSize.length;
             if(imgReSize.length > +!!object.newImg) {
@@ -331,7 +294,7 @@ var imageUtility = (function(){
                         sBuffer = sBuffer || cv.getContext("2d").getImageData(0, 0, sw, sh);
                     var resultCV = document.createElement("canvas"); resultCV.width = tw; resultCV.height = th;
                     var resultCTX = resultCV.getContext("2d"), resultIMG = resultCTX.getImageData(0, 0, tw, th), tByteBuffer = resultIMG.data;
-                    var imageWorker = new Worker("/js/imageWorker.js");
+                    var imageWorker = new Worker("js/imageWorker.js");
                     imageWorker.postMessage({'sBuffer': sBuffer, 'scale': imgReSize[0].S, 'width': image.width, 'height': image.height});
                     imageWorker.onmessage = function(e) {
                         if(typeof(tByteBuffer.set) == "function") tByteBuffer.set(e.data);
@@ -362,35 +325,30 @@ var imageUtility = (function(){
                 if(object.newImg) imgObjPackage(imgObj.length, object.newImg, file, imgSize, imgExif);
                 html5.setParas({'counter': uploadCounter});
                 finishUpload(image, file, thumbnail, imgSize, imgExif, object);
-                if($(".c_upload_animation").size() && !pCnt) clearUploadAnimation();
                 html5 = sBuffer = imgObj = null; imgObj = []; pLock = true; if(typeof(CollectGarbage) == "function") CollectGarbage();
             }
         },
-        
+
 		readProcess : function(e, file, object, imgExif) {
-            var html5 = new html5Upload();
-            object = object || {}; imgExif = imgExif || [null, null, 1];
+			var html5 = new html5Upload();
+            object = object || {}; imgExif = imgExif.length ? imgExif : [null, null, 1];
 			if(!!~html5.paras('imageMime').indexOf(file.type)) {
                 pQueue[pCnt] = {
                     'eDataURL': JSON.stringify(e.target.result),
-                    'file': JSON.stringify({'type': file.type || 'image/jpeg', 'name': file.name || 'anonymous', 'category': object.category || uploadImgFocus}),
+                    'file': JSON.stringify({
+                    	'type': file.type || 'image/jpeg',
+                    	'name': file.name || 'anonymous',
+                    	'size': file.size || 0
+                    }),
                     'imgExif': JSON.stringify(imgExif)
                 }; pCnt++;
+
                 photoSizeArr.push(imageUtility.getSize(JSON.stringify(e.target.result)));
+
+                var pId = setInterval(processInterval, imageUtility.getDelay());
                 function processInterval() {
                     if(pLock) {
-                        if(object.loadAnimation) showUploadAnimation(object.loadAnimation);
                         var pObject = pQueue.shift(); pCnt--; clearInterval(pId); pLock = false; uploadCounter++;
-                        eDataURL = JSON.parse(pObject['eDataURL']);
-                        file = JSON.parse(pObject['file']);
-                        object.quality = object.quality || 'normal';
-                        object.canvasRotate = object.canvasRotate || false;
-                        object.imgQuality = ['fine', 'fine', 'fine', 'fine', 'normal'];
-                        imgExif = JSON.parse(pObject['imgExif']); object.imgExif = imgExif;
-                        var thumbnail = {
-                            'thumbnail': object.thumbnail,
-                            'thumbEvent': object.thumbEvent
-                        };
                         var imgSize = object.imgSize || {
                             '0': {'spec': 'SQR', 'W': 55, 'H': 55},
                             '1': {'spec': 'SQR', 'W': 200, 'H': 200},
@@ -398,13 +356,20 @@ var imageUtility = (function(){
                             '3': {'spec': 'MAX', 'W': 700, 'H': 700},
                             '4': {'spec': 'MAX', 'W': 1400, 'H': 1400}
                         };
+                        eDataURL = JSON.parse(pObject['eDataURL']);
+                        file = JSON.parse(pObject['file']);
+                        object.quality = object.quality || 'normal';
+                        var imgQualityArr = object.imgQuality || []; object.imgQuality = [];
+                        for(var i=0; i<Object.keys(imgSize).length; i++)
+                        	object.imgQuality[i] = imgQualityArr[i] || object.quality;
+
+                        object.canvasRotate = object.canvasRotate || false;
+                        imgExif = JSON.parse(pObject['imgExif']);
+                        object.imgExif = imgExif;
+                        var thumbnail = {'thumbnail': object.thumbnail, 'thumbEvent': object.thumbEvent};
                         var image = new Image(); image.src = eDataURL;
                         image.onload = function() {
-                            if(false) {
-                                console.error('Out of pixel limitation');
-                                if($(".c_upload_animation").size()) clearUploadAnimation();
-                                pLock = true; return;
-                            }   //Out of pixel limitation
+                            // make thumbnail
                             if(thumbnail.thumbnail) {
                                 if(thumbnail.thumbnail.preview) {
                                     var pick = thumbnail.thumbnail.pick || 0,
@@ -419,8 +384,9 @@ var imageUtility = (function(){
                                         'deg': imageUtility.photoDegree(imgExif[2])+'deg' || '0deg'
                                     });
                                 }
-                            }   //preview image thumbnail
-                            
+                            }
+
+                            // make image resize
                             if(image.width * image.height <= 1000000) {
                                 imageUtility.imgAspectRatio(image, imgSize, object.imgQuality);
                                 object.newImg = null;
@@ -442,11 +408,8 @@ var imageUtility = (function(){
                             }
                         }
                     }
-                } var pId = setInterval(processInterval, imageUtility.getDelay());
-            } else {
-                system.message.error(config.language.error[43]);
-                if($(".c_upload_animation").size() && !pCnt) clearUploadAnimation();
-            }
+                }
+            } else console.error('occur imageMime Error');
 		}
 	};
 })();

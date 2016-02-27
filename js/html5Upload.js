@@ -1,12 +1,13 @@
 /**
-* My Upload Plugin
-* 
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.0.20140227
+* @Version 	release v4.0.20160225
+* @Describe Html5 fileAPI upload
 * @License 	under the MIT License
 **/
-var object = {};
+var object = {}, settings = {};
 function html5Upload() {
 	var reader = new FileReader(), queue = [],
 		counter = 0, totalNumber = 0, numSet = 0, sizeSet = 0, sizeTotal = 0, sizeProgress = 0,
@@ -18,8 +19,8 @@ function html5Upload() {
 		videoMime = ['video/dl', 'video/fli', 'video/gl', 'video/mpeg', 'video/quicktime', 'video/x-ms-asf', 'video/x-msvideo',
 					'video/x-sgi-movie', 'video/avi'],
 		textMime = ['text/html', 'text/plain', 'text/mathml', 'text/richtext', 'text/comma-separated-values'];
-	
-	var settings = {
+
+	var settingOBj = {
 		uploadArea: '#uploadArea', uploadButton: '#uploadButton', uploadAbort: '#uploadAbort',	//upload element
 		mimeTypes: imageMime, mimeStrict: false,	//mimeTypes setting
 		numLimit: 100, numLimitTotal: 0,	//number setting
@@ -32,9 +33,9 @@ function html5Upload() {
 		startXHR: function(e, file){}, progressXHR: function(e, file){}, endXHR: function(e, file){},
 		loadXHR: function(e, file){}, errorXHR: function(e, file){}	//XHR event setting
 	};
-	
+
 	var initial = function(options) {
-		settings = jQuery.extend(settings, options);
+		settings = jQuery.extend(settingOBj, options);
 		//drag and drop in window
 		$(window).bind("dragover", function(e){e.preventDefault()});
 		$(window).bind("drop", function(e){
@@ -56,7 +57,7 @@ function html5Upload() {
 		//abort the upload
 		$(settings.uploadAbort).bind("click", function(){ queue=['']; reader.abort(); totalNumber -= totalNumber-counter; });
     }
-	
+
 	var getFiles = function(filelist) {
 		if(!filelist || !filelist.length) return;
 		//number limit of upload file
@@ -84,10 +85,10 @@ function html5Upload() {
 		if(settings.sizeLimitTotal) if(sizeTotal > settings.sizeLimitTotal) {
 			console.error('Out of Total size'); sizeTotal -= sizeSet; queue=[]; return;
 		} totalNumber += numSet;
-		
+
 		sizeProgress = 0; uploadQueue();
     }
-	
+
     var uploadQueue = function() {
 		if(queue.length) {
             var file = queue.shift();
@@ -99,12 +100,12 @@ function html5Upload() {
             }
         }
     }
-	
+
 	var uploadProgress = function(file) {
 		sizeProgress += file.size;
 		return sizeProgress/sizeSet;
     }
-	
+
     var fileUpload = function(file) {
 		eval('reader.'+settings.readMethod+'(file)');
 		reader.onloadstart = function(e) { settings.startReader(e, file) };
@@ -114,7 +115,7 @@ function html5Upload() {
 		reader.onabort = function(e) { settings.abortReader(e, file) };
 		if(!file) settings.abortReader(file);
     }
-	
+
 	var ajaxTxing = function(ajaxData, file) {
 		dataObject = {}; dataObject[settings.ajaxData] = ajaxData;
 		$.ajax({
@@ -136,13 +137,13 @@ function html5Upload() {
 
 	return {
 		paras : function(parameter){ return eval(parameter) },
-		
+
 		setParas : function(obj){ object = jQuery.extend(true, object, obj) },
-		
+
 		progress : function(file){ return uploadProgress(file) },
-		
+
 		upload : function(options){ initial(options) },
-		
+
 		ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }
 	}
 }
