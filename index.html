@@ -5,7 +5,7 @@
     <title>Html5.upload by xenophon566</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
@@ -20,132 +20,38 @@
 
     <section class="main-content">
       <h1>
-<a id="demo" class="anchor" href="#demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demo</h1>
-
-<a href="http://xenophon566.github.io/demo/html5.upload/" style="color:rgb(21, 153, 87); text-decoration:none;"><b>Click to demonstration</b></a>
-
-<h1>
-<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h1>
-
-<div><pre>
-//Setting theupload options
-var options = { ... }
-
-//Setting theimageUtility options( sample in this case )
-var imageUtilityObj = { ... }
-
-//Assign the parameter and event setting to options then starting the plugin byself-invoking
-html5.upload(options)
-</pre></div>
-
-<h1>
-<a id="document" class="anchor" href="#document" aria-hidden="true"><span class="octicon octicon-link"></span></a>Document</h1>
-
-<h3>
-<a id="parameter-setting" class="anchor" href="#parameter-setting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parameter Setting</h3>
-
-<div><pre>
-uploadArea   //element of upload area Default: #uploadArea
-( setting the element name to upload area. )
-
-uploadButton   //element of upload button Default: #uploadButton
-( setting the element name to upload button. )
-
-uploadAbort   //element of upload abort Default: #uploadAbort
-( setting the element name to upload abort. )
-
-mimeTypes   //upload mime types Default: imageMime
-( select the mime types pattern or input mime types array directly. )
-( offer the imageMime, audioMime, videoMime, textMime types. )
-
-mimeStrict   //strict mime types Default: true
-( can upload or not in the uncatch mime types situation. )
-
-numLimit   //number limit of each upload Default: 100
-( until exceeded limit, 0 is infinite number. )
-
-numLimitTotal   //total number limit of upload Default: 0
-( until exceeded limit, 0 is infinite number. )
-
-sizeLimitUni   //limit the unit file size Default: 0
-( cancel the single upload request when a file size exceeded limit, 0 is infinite size. )
-
-sizeLimitSet   //limit a set of upload file size Default: 0
-( cancel the upload request when a set of file size exceeded limit, 0 is infinite size. )
-
-sizeLimitTotal   //limit the total uploaded size Default: 0
-( cancel the upload request when total file size exceeded limit, 0 is infinite size. )
-
-readMethod   //setting the fileAPI reader method Default: readAsDataURL
-( including readAsText, readAsDataURL, readAsArrayBuffer, readAsBinaryString. )
-
-ajaxType   //setting the ajax request type Default: POST
-( HTTP request methods including get and post. )
-
-ajaxURL   //setting the ajax request url Default: ' '
-( HTTP request server address. )
-
-ajaxCache   //setting the ajax request cache Default: true
-( HTTP request ajax cache switch. )
-
-ajaxData   //setting the data object key of ajax request Default: ajaxData
-( HTTP request ajax data object key. )
-</pre></div>
-
-<h3>
-<a id="event-setting" class="anchor" href="#event-setting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Event Setting</h3>
-
-<div><pre>
-dragenter: function(e){}   //action of upload dragenter Default: {}
-dragover: function(e){}   //action of upload dragover Default: {}
-dragleave: function(e){}   //action of upload dragleave Default: {}
-dropdown: function(e){}   //action of upload dropdown Default: {}
-startReader: function(e, file){}   //setting the fileAPI start event Default: {}
-progressReader: function(e, file){}   //setting the fileAPI progress event Default: {}
-loadReader: function(e, file){}   //setting the fileAPI load event Default: {}
-endReader: function(e, file){}   //setting the fileAPI end event Default: {}
-abortReader: function(e, file){}   //setting the fileAPI abort event Default: {}
-startXHR: function(e, file){}   //setting the ajaxXHR start event Default: {}
-progressXHR: function(e, file){}   //setting the ajaxXHR progress event Default: {}
-loadXHR: function(e, file){}   //setting the ajaxXHR load event Default: {}
-endXHR: function(e, file){}   //setting the ajaxXHR end event Default: {}
-errorXHR: function(e, file){}   //setting the ajaxXHR error event Default: {}
-</pre></div>
-
-<h1>
-<a id="html5-upload" class="anchor" href="#html5-upload" aria-hidden="true"><span class="octicon octicon-link"></span></a>Html5 Upload</h1>
-
-<h3>
-<a id="html5upload-project" class="anchor" href="#html5upload-project" aria-hidden="true"><span class="octicon octicon-link"></span></a>html5.upload project</h3>
+<a id="html5upload-project" class="anchor" href="#html5upload-project" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Html5.upload Project</h1>
 
 <h4>
-<a id="describe" class="anchor" href="#describe" aria-hidden="true"><span class="octicon octicon-link"></span></a>Describe</h4>
+<a id="type" class="anchor" href="#type" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Type</h4>
 
-<p>This is a plugin based on html5 fileAPI(FileReader) for file processing.
-imageUtility.js is a example for image processing.</p>
-
-<h4>
-<a id="type" class="anchor" href="#type" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type</h4>
-
-<p>Plugin</p>
+<p>Html5 Plugin</p>
 
 <h4>
-<a id="feature" class="anchor" href="#feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feature</h4>
+<a id="describe" class="anchor" href="#describe" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Describe</h4>
+
+<p>This is a Html5 plugin for client-side file upload, it supports many MIME type file upload.
+non-blocking designs by Webworker, to run your script in client-side background.
+(All file upload and process scripts run in client-side device)</p>
+
+<h4>
+<a id="feature" class="anchor" href="#feature" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature</h4>
 
 <ol>
-<li>All MIME types supported.</li>
-<li>Plug your own script to process file.</li>
+<li>Html5 file API upload stream.</li>
+<li>Make the uploads to any type of file.</li>
+<li>Run your script in client background by Webworker.</li>
 </ol>
 
 <h4>
-<a id="base-on" class="anchor" href="#base-on" aria-hidden="true"><span class="octicon octicon-link"></span></a>Base on</h4>
+<a id="base-on" class="anchor" href="#base-on" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Base on</h4>
 
 <p>HTML5, Javascript, JQuery</p>
 
 <h4>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h4>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h4>
 
-<p>under the MIT License Copyright(c) 2014 Shawn Wu</p>
+<p>under the MIT License </p><p>Copyright (c) {{2014 Shawn Wu}}</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/xenophon566/html5.upload">Html5.upload</a> is maintained by <a href="https://github.com/xenophon566">xenophon566</a>.</span>
@@ -158,4 +64,3 @@ imageUtility.js is a example for image processing.</p>
   
   </body>
 </html>
-
