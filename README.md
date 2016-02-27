@@ -17,5 +17,5 @@ non-blocking designs by Webworker, to run your script in client-side background.
 #### Base on
 HTML5, Javascript, JQuery
 
-####License
+#### License
 under the MIT License <p>Copyright (c) {{2014 Shawn Wu}}</p>
