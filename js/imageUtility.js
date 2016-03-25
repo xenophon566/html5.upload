@@ -1,14 +1,14 @@
 /**
-* My Upload Plugin - Image Utility Tool
-* 
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.6.20140417
+* @Version 	release v3.8.20160225
 * @License 	under the MIT License
 **/
 var imageUtility = (function(){
 	var imgObj = [], imgReSize = [], pQueue = [], pCnt = 0, pLock = true, uploadCounter = 0, photoSizeArr = [];
-	
+
 	var resizeMAX = function(MAX_WIDTH, MAX_HEIGHT, width, height) {
 		var ratio = 1; if( !width || !height ) return;
 		if( MAX_WIDTH && MAX_HEIGHT ) {
@@ -24,23 +24,23 @@ var imageUtility = (function(){
 		}
 		return [ratio, width, height];
 	}
-	
+
 	var resizeMIN = function(MIN_WIDTH, MIN_HEIGHT, width, height) {
 		var ratio = 1; if( !width || !height ) return;
-		if( MIN_WIDTH && MIN_HEIGHT ) {			
+		if( MIN_WIDTH && MIN_HEIGHT ) {
 			if( width < height ) {
 				if( width < MIN_WIDTH ) { ratio = MIN_WIDTH/width; height *= MIN_WIDTH/width; width = MIN_WIDTH; }
 			} else {
 				if( height < MIN_HEIGHT ) { ratio = MIN_HEIGHT/height; width *= MIN_HEIGHT/height; height = MIN_HEIGHT; }
 			}
-		} else if( MIN_WIDTH && !MIN_HEIGHT ) {			
+		} else if( MIN_WIDTH && !MIN_HEIGHT ) {
 			if( width < MIN_WIDTH ) { ratio = MIN_WIDTH/width; height *= MIN_WIDTH/width; width = MIN_WIDTH; }
 		} else if( !MIN_WIDTH && MIN_HEIGHT ) {
 			if( height < MIN_HEIGHT ) { ratio = MIN_HEIGHT/height; width *= MIN_HEIGHT/height; height = MIN_HEIGHT; }
 		}
 		return [ratio, width, height];
 	}
-	
+
     var drawRotated = function(image, cv, ctx, scale, degrees) {
         if(degrees == 90 || degrees == -90) { var tmp = cv.width; cv.width = cv.height; cv.height = tmp; }
         ctx.clearRect(0, 0, cv.width, cv.height);
@@ -50,33 +50,16 @@ var imageUtility = (function(){
         ctx.drawImage(image, 0, 0, image.width, image.height, -scale[1]/2, -scale[2]/2, scale[1], scale[2]);
         ctx.restore();
     }
-    
-    var roughScale = function(image, scale, object) {
-        var cv = document.createElement('canvas'), ctx = cv.getContext("2d");
-        cv.width = scale[1]; cv.height = scale[2];
-        var resultCV = document.createElement('canvas'), resultCTX = resultCV.getContext('2d');
-            resultCV.width = cv.width; resultCV.height = cv.height;
-        var oc = document.createElement('canvas'), octx = oc.getContext('2d');
-        oc.width = image.width * 0.5; oc.height = image.height * 0.5;
-        octx.drawImage(image, 0, 0, oc.width, oc.height);
-        octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5);
-        ctx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5, 0, 0, cv.width, cv.height);
-        resultCTX.drawImage(cv, 0, 0);
-        if(object.canvasRotate)
-            drawRotated(image, resultCV, resultCTX, scale, imageUtility.photoDegree(object.imgExif[2]));
-        
-        return resultCV;
-    }
-    
-    var normalScale = function(image, scale, object) {
+
+    var normalQuality = function(image, scale, object) {
         var resultCV = document.createElement("canvas"); resultCV.width = scale[1] || 55; resultCV.height = scale[2] || 55;
         var ctx = resultCV.getContext("2d");
         if(object.canvasRotate) drawRotated(image, resultCV, ctx, scale, imageUtility.photoDegree(object.imgExif[2]));
         else ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, scale[1], scale[2]);
         return resultCV;
     }
-    
-	var fineScale = function(image, scale, object) {
+
+	var fineQuality = function(image, scale, object) {
 		//get source and target canvas
 		var scaleArr = scale;
         var scale = scale[0];
@@ -93,14 +76,14 @@ var imageUtility = (function(){
 			crossX = false, crossY = false,	//scaled px cross current px border
 			sBuffer = cv.getContext("2d").getImageData(0, 0, sw, sh).data,	//get source buffer 8 bit rgba
 			tBuffer = new Float32Array(3 * sw * sh); //put target buffer Float32 rgb
-		
+
 		//create result canvas
 		var resultCV = document.createElement("canvas"); resultCV.width = tw; resultCV.height = th;
 		var resultCTX = resultCV.getContext("2d"),	//canvas result context
 			resultIMG = resultCTX.getImageData(0, 0, tw, th),	//result image
 			tByteBuffer = resultIMG.data,	//result image buffer
 			pxIndex = 0;	//number of total pixel
-		
+
 		//RGB of source to target
 		for( sy=0; sy<sh; sy++ ) {
 			ty = sy * scale; TY = 0 | ty; yIdx = 3 * TY * tw; crossY = (TY != (0 | ty + scale));
@@ -148,15 +131,15 @@ var imageUtility = (function(){
 			tByteBuffer[tIdx + 2] = Math.ceil(tBuffer[sIdx + 2]);
 			tByteBuffer[tIdx + 3] = 255;
 		} resultCTX.putImageData(resultIMG, 0, 0);
-		
+
         if(object.canvasRotate) drawRotated(image, resultCV, resultCTX, scaleArr, imageUtility.photoDegree(object.imgExif[2]));
-        
+
 		tByteBuffer = resultIMG = tBuffer = sBuffer = null;
         if(typeof(CollectGarbage) == "function") CollectGarbage();
-		
+
 		return resultCV;
 	}
-    
+
     var imgObjPackage = function(idx, strData, file, imgSize, imgExif) {
         imgObj[idx] = [];
         imgObj[idx][0] = strData; imgObj[idx][1] = file.type; imgObj[idx][2] = file.name;
@@ -165,7 +148,7 @@ var imageUtility = (function(){
         imgObj[idx][5] = imgExif[0] || null; imgObj[idx][6] = imgExif[1] || null;
         imgObj[idx][7] = imgExif[2] || null; imgObj[idx][8] = file.category || null;
     }
-    
+
     var finishUpload = function(image, file, thumbnail, imgSize, imgExif, object) {
         if(object.canvasRotate) for(var i in imgObj) imgObj[i][7] = 1;
         if(thumbnail.thumbnail) {
@@ -182,7 +165,7 @@ var imageUtility = (function(){
             thumbnail.thumbEvent(thumbImage); thumbImage = null;
             if(typeof(CollectGarbage) == "function") CollectGarbage();
         }
-        
+
         var sellFlagArr = ['#sellBtn_0', '#sellBtn_1', '#sellBtn_2', '#sellBtn_3', 'sell_img_0', 'sell_img_1', 'sell_img_2', 'sell_img_3', 'sell_img_tn_0', 'sell_img_tn_1', 'sell_img_tn_2', 'sell_img_tn_3'];
         if(file.category != 'rtc') {
             if( uploadImgFocus == '#acPortraitBtn' || uploadImgFocus == 'acPortrait' )
@@ -205,27 +188,27 @@ var imageUtility = (function(){
                 $("#auth_submit_btn").html(config.language.btn[0] + '>');   //Submit
             }
         } else system.messenger.uploadImage(imgObj);
-        
+
         photoSizeArr.shift(); if(!pCnt) photoSizeArr = [];
         image = file = thumbnail = imgSize = imgExif = imgObj = null;
         if(typeof(CollectGarbage) == "function") CollectGarbage();
     }
-    
+
 	return {
 		imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height) {
 			return resizeMAX(MAX_WIDTH, MAX_HEIGHT, width, height);
 		},
-		
+
 		imgResizeMIN : function(MIN_WIDTH, MIN_HEIGHT, width, height) {
 			return resizeMIN(MIN_WIDTH, MIN_HEIGHT, width, height);
 		},
-		
+
 		dataURL2Blob : function(dataURL, dataTYPE) {
 			var binary = atob(dataURL.split(',')[1]), array = [];
 			for( var i=0; i<binary.length; i++ ) array.push(binary.charCodeAt(i));
 			return new Blob([new Uint8Array(array)], {type: dataTYPE || 'image/jpeg'});
 		},
-		
+
 		cutSquare : function(canvas, width, height) {
 			width = 0 | width; height = 0 | height;
 			length = width < height ? width : height; length -= 2;
@@ -234,16 +217,15 @@ var imageUtility = (function(){
 			newCanvas.getContext("2d").drawImage(canvas, cutPosX, cutPosY, length, length, 0, 0, length, length);
 			return newCanvas.toDataURL("image/jpeg");
 		},
-		
+
         canvas2JPEG : function(image, scale, mode, object) {
             var quality = scale[3] || object.quality || 'normal';
-            if(quality == 'rough') var resultCanvas = roughScale(image, scale, object);
-            else if(quality == 'normal') var resultCanvas = normalScale(image, scale, object);
-            else var resultCanvas = fineScale(image, scale, object);
+            if(quality == 'normal') var resultCanvas = normalQuality(image, scale, object);
+            else var resultCanvas = fineQuality(image, scale, object);
             var strData = resultCanvas.toDataURL("image/jpeg");
             return mode == 'canvas' ? resultCanvas : strData;
 		},
-        
+
 		thumbnail : function(image, object) {
 			var object = object || {},  //Refactor a thumbnail in this function
                 quality = object.quality || 'normal', isSquare = object.isSquare || false,
@@ -256,17 +238,17 @@ var imageUtility = (function(){
 				thuH = thumHeight;
 				var sizeArr = imageUtility.imgResizeMAX(thuW, thuH, image.width, image.height);
 			}   //Get Aspect Ratio Size Array
-            
+
             if(isSquare) {
                 var thumbCV = imageUtility.canvas2JPEG(image, sizeArr, 'canvas', object);
                 var thumb_dataUrl = imageUtility.cutSquare(thumbCV, sizeArr[1], sizeArr[2]);
             } else {
                 var thumb_dataUrl = imageUtility.canvas2JPEG(image, sizeArr, 'dataurl', object);
             } var imgBlobObj = imageUtility.dataURL2Blob(thumb_dataUrl, 'image/jpeg');
-			
+
             return window.URL.createObjectURL(imgBlobObj);
 		},
-		
+
         photoDegree : function(orit){
             var deg = 0;
             switch(orit) {
@@ -276,7 +258,7 @@ var imageUtility = (function(){
             }
             return deg;
         },
-        
+
         getSize : function(_FILE_) {
             var _A_ = [_FILE_], _B_ = 0; for(var _C_=0; _C_<_A_.length; _C_++) {
                 switch(typeof _A_[_C_]) {
@@ -294,7 +276,7 @@ var imageUtility = (function(){
                 }
             } return _B_;
         },
-        
+
         getDelay : function(){
             var delayTime = !!window.webkitURL ? 400 : navigator.buildID ? 3200 : 5600;
             var delayIncrease = !!window.webkitURL ? 100 : navigator.buildID ? 800 : 2400;
@@ -302,7 +284,7 @@ var imageUtility = (function(){
                 delayTime += (0 | (+eval(photoSizeArr.join('+'))/1000000)*10 / 500) * delayIncrease;
             return delayTime;
         },
-        
+
         imgAspectRatio : function(image, imgSize, imgQuality) {
             for(var i in imgSize) {
                 if(imgSize[i].spec == 'SQR') {
@@ -320,7 +302,7 @@ var imageUtility = (function(){
                 imgReSize[i] = {'S': sizeArr[0], 'W': sizeArr[1], 'H': sizeArr[2], 'Q': imgQuality[i] || 'normal'};
             } return sizeArr;
         },
-        
+
         imageProcessor: function(image, file, thumbnail, imgSize, imgExif, object, sBuffer) {
             var html5 = new html5Upload(), idx = Object.keys(imgSize).length - imgReSize.length;
             if(imgReSize.length > +!!object.newImg) {
@@ -366,7 +348,7 @@ var imageUtility = (function(){
                 html5 = sBuffer = imgObj = null; imgObj = []; pLock = true; if(typeof(CollectGarbage) == "function") CollectGarbage();
             }
         },
-        
+
 		readProcess : function(e, file, object, imgExif) {
             var html5 = new html5Upload();
             object = object || {}; imgExif = imgExif || [null, null, 1];
@@ -420,7 +402,7 @@ var imageUtility = (function(){
                                     });
                                 }
                             }   //preview image thumbnail
-                            
+
                             if(image.width * image.height <= 1000000) {
                                 imageUtility.imgAspectRatio(image, imgSize, object.imgQuality);
                                 object.newImg = null;
