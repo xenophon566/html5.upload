@@ -1,3 +1,12 @@
+/**
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
+* @Date 	20140205
+* @Author 	ShawnWu
+* @Version 	release v4.0.20160225
+* @Describe image webworker
+* @License 	under the MIT License
+**/
 self.addEventListener('message', function(e){
 	var sBufferData = e.data['sBuffer'].data, scale = e.data['scale'], cvWidth = e.data['width'], cvHeight = e.data['height'];	//from main thread
 	var sq = scale*scale,	//pixel of source within target
@@ -11,7 +20,7 @@ self.addEventListener('message', function(e){
 		crossX = false, crossY = false,	//scaled px cross current px border
 		tBuffer = new Float32Array(3 * sw * sh),    //buffer of scale source to target
         rBuffer = typeof(Uint8ClampedArray) == 'function' ? new Uint8ClampedArray(4 * tw * th) : new Uint16Array(4 * tw * th); //buffer of target to result canvas
-        
+
 	//RGB of source to target
 	for( sy=0; sy<sh; sy++ ) {
 		ty = sy * scale; TY = 0 | ty; yIdx = 3 * TY * tw; crossY = (TY != (0 | ty + scale));
@@ -45,7 +54,7 @@ self.addEventListener('message', function(e){
 			}
 		}
 	}
-	
+
 	//RGBA of target to result canvas
 	for( sIdx=0, tIdx=0; pxIndex < tw*th; sIdx+=3, tIdx+=4, pxIndex++ ) {
 		rBuffer[tIdx + 0] = Math.round(tBuffer[sIdx + 0]);
@@ -53,8 +62,8 @@ self.addEventListener('message', function(e){
 		rBuffer[tIdx + 2] = Math.round(tBuffer[sIdx + 2]);
 		rBuffer[tIdx + 3] = 255;
 	}
-	
+
 	self.postMessage(rBuffer);
-	
+
 	e = rBuffer = tBuffer = sBufferData = undefined; self.close();
 }, false);

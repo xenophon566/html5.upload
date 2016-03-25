@@ -1,14 +1,32 @@
 /**
-* My Upload Plugin - Style
-* 
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.0.20140227
+* @Version 	release v4.0.20160225
+* @Describe demosite styles
 * @License 	under the MIT License
 **/
 * {
     margin: 4px;
     padding: 2px;
+}
+body {
+	background-color: antiquewhite;
+}
+p a {
+	text-decoration: none;
+	color: rgb(155, 93, 52);
+}
+.textbox {
+	background-color: white;
+	border: 1px solid;
+	width: 50%;
+}
+.subtitle {
+	width: 480px;
+	font-size: 18px;
+	border-bottom: 1px solid; border-top: 1px solid;
 }
 #uploadArea {
     background-color: #DDD;

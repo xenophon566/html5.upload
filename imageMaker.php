@@ -1,10 +1,11 @@
 <?php
 /**
-* My Upload Plugin - Image Utility Tool
-* 
+* My Upload Plugin - Image Utility Tool Kit (Canvas)
+*
 * @Date 	20140205
 * @Author 	ShawnWu
-* @Version 	release v3.0.20140227
+* @Version 	release v4.0.20160225
+* @Describe PHP example
 * @License 	under the MIT License
 **/
 if($_POST) for( $i=0; $i<count($_POST['ajaxData']); $i++ )
