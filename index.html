@@ -1,145 +1,214 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Html5 Upload Image</title>
-<link rel="stylesheet" type="text/css" href="css/main.css" />
-<script type="text/javascript" src="js/_jquery-2.0.3.min.js"></script>
-<script type="text/javascript" src="js/html5Upload.js"></script>
-<script type="text/javascript" src="js/imageUtility.js"></script>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Html5 Upload Image</title>
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="js/html5Upload.js"></script>
+    <script type="text/javascript" src="js/imageUtility.js"></script>
 </head>
 
 <body>
-<script type="text/javascript">
-$(function(){
-	var html5 = new html5Upload();
-	var imageUtilityObj = {
-		// Image resize object
-		'imgSize': {
-			'0': {'spec': 'SQR', 'W': 55, 'H': 55},
-			'1': {'spec': 'SQR', 'W': 200, 'H': 200},
-			'2': {'spec': 'MAX', 'W': 400, 'H': null},
-			'3': {'spec': 'MAX', 'W': 700, 'H': 700},
-			'4': {'spec': 'MAX', 'W': 1400, 'H': 1400}
-		},
-		// Canvas Rotate to fix the photo orientation issue
-		'canvasRotate': false,
-		// Image overall quality
-		'quality': 'normal',
-		// imgSize quality setting
-		'imgQuality': ['fine', 'normal'],
-		// Make a new thumbnail
-		'thumbnail': {'width': 120, 'height': 120},
-		// OR pick a thumbnail from imgSize
-		// 'thumbnail': {'pick': 2},
-		// Thumbnail action setting
-		'thumbEvent': function(thumbnail){ $("#uploadInfo").append(thumbnail) }
-	};
-	var options = {
-		// Quality Setting & Docs
-		uploadArea: '#uploadArea', uploadButton: '#uploadButton', uploadAbort: '#uploadAbort',	// upload element
-		mimeTypes: html5.paras('imageMime'), mimeStrict: false,	// mimeTypes setting
-		numLimit: 100, numLimitTotal: 0,	// number setting
-		sizeLimitUni: 10485760, sizeLimitSet: 0, sizeLimitTotal: 0,	// size setting
-		dragenter: function(e){$(this).css("background-color", "rgb(240, 207, 141)")},	// DnD event setting
-		dragover: function(e){},	// DnD event setting
-		dragleave: function(e){$(this).css("background-color", "#DDD")},	// DnD event setting
-		dropdown: function(e){$(this).css("background-color", "#DDD")},	// DnD event setting
-		readMethod: 'readAsDataURL',	// FileReader method setting
-		startReader: function(e, file){ if($("#myProgress").size()) $("#myProgress").show(); },	// startReader
-		progressReader: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	// progressReader
-		loadReader: function(e, file){
-			var imgExif = [];	// need plugin to get Exif infomation from image
-			imageUtility.readProcess(e, file, imageUtilityObj, imgExif);
-		},	// loadReader
-		endReader: function(e, file){
-			if(e.target.error) console.error(e.target.error.name);
-			file = e = undefined; if(typeof(CollectGarbage) == "function") CollectGarbage();
-		},	// endReader
-		abortReader: function(e, file){ console.warn('Aborting'); if($("#myProgress").size()) $("#myProgress").hide(); }, // abortReader
-		ajaxType: 'POST', ajaxURL: 'imageMaker.php', ajaxCache: true, ajaxData: 'ajaxData',	// Ajax request setting
-		startXHR: function(e, file){},	// startXHR
-		progressXHR: function(e, file){ if(e.lengthComputable) return Math.round((e.loaded/e.total) * 100); },	// progressXHR
-		loadXHR: function(e, file){ loadProgress(file) },	// loadXHR
-		endXHR: function(e, file){
-			if(e.target.error) console.error(e.target.error.name);
-			file = e = undefined; if(typeof(CollectGarbage) == "function") CollectGarbage();
-		},	// endXHR
-		errorXHR: function(e, file){}	// errorXHR
-	};
-	var loadProgress = function(file){
-		var progress = html5.progress(file), myProgress = document.getElementById('myProgress'),
-			optProgress = JSON.parse(myProgress.getAttribute('data-progress')),
-			optText = JSON.parse(myProgress.getAttribute('data-text')),
-			optValue = JSON.parse(myProgress.getAttribute('data-value')),
-			progTxt = +(optText.show) ? optText.content[0] + html5.paras('object')['counter']
-						+optText.content[1] + html5.paras('totalNumber') + optText.content[2] : '',
-			progVal = (Math.round(progress*10)/10)*100 + optValue.sign;
-		if(optValue.pos != 'none') progTxt = (optValue.pos == 'right') ? progTxt+' '+progVal : progVal+' '+progTxt;
-		myProgress.getContext('2d').clearRect(0, 0, myProgress.width, myProgress.height);
-		myProgress.getContext('2d').fillStyle = optProgress.barRGB;
-		myProgress.getContext('2d').fillRect(0, 0, progress*myProgress.width, myProgress.height);
-		myProgress.getContext('2d').fillStyle = optProgress.txtRGB;
-		myProgress.getContext('2d').fillText(progTxt, optText.x, optText.y, myProgress.width);
-	};
-	html5.upload(options);
-});
-function imageClick() {
-	$("#uploadButton").trigger("click");
-}
-</script>
+    <script type="text/javascript">
+    $(function() {
+        var html5 = new html5Upload();
+        var imageUtilityObj = {
+            // Image resize object
+            'imgSize': {
+                '0': {
+                    'spec': 'SQR',
+                    'W': 55,
+                    'H': 55
+                },
+                '1': {
+                    'spec': 'SQR',
+                    'W': 200,
+                    'H': 200
+                },
+                '2': {
+                    'spec': 'MAX',
+                    'W': 400,
+                    'H': null
+                },
+                '3': {
+                    'spec': 'MAX',
+                    'W': 700,
+                    'H': 700
+                },
+                '4': {
+                    'spec': 'MAX',
+                    'W': 1400,
+                    'H': 1400
+                }
+            },
+            // Canvas Rotate to fix the photo orientation issue
+            'canvasRotate': false,
+            // Image overall quality
+            'quality': 'normal',
+            // imgSize quality setting
+            'imgQuality': ['fine', 'normal'],
+            // Make a new thumbnail
+            'thumbnail': {
+                'width': 120,
+                'height': 120
+            },
+            // OR pick a thumbnail from imgSize
+            // 'thumbnail': {'pick': 2},
+            // Thumbnail action setting
+            'thumbEvent': function(thumbnail) {
+                $("#uploadInfo").append(thumbnail)
+            }
+        };
+        var options = {
+            // Quality Setting & Docs
+            uploadArea: '#uploadArea',
+            uploadButton: '#uploadButton',
+            uploadAbort: '#uploadAbort', // upload element
+            mimeTypes: html5.paras('imageMime'),
+            mimeStrict: false, // mimeTypes setting
+            numLimit: 100,
+            numLimitTotal: 0, // number setting
+            sizeLimitUni: 10485760,
+            sizeLimitSet: 0,
+            sizeLimitTotal: 0, // size setting
+            dragenter: function(e) {
+                $(this).css("background-color", "rgb(240, 207, 141)")
+            }, // DnD event setting
+            dragover: function(e) {}, // DnD event setting
+            dragleave: function(e) {
+                $(this).css("background-color", "#DDD")
+            }, // DnD event setting
+            dropdown: function(e) {
+                $(this).css("background-color", "#DDD")
+            }, // DnD event setting
+            readMethod: 'readAsDataURL', // FileReader method setting
+            startReader: function(e, file) {
+                if ($("#myProgress").size()) $("#myProgress").show();
+            }, // startReader
+            progressReader: function(e, file) {
+                if (e.lengthComputable) return Math.round((e.loaded / e.total) * 100);
+            }, // progressReader
+            loadReader: function(e, file) {
+                var imgExif = []; // need plugin to get Exif infomation from image
+                imageUtility.readProcess(e, file, imageUtilityObj, imgExif);
+            }, // loadReader
+            endReader: function(e, file) {
+                if (e.target.error) console.error(e.target.error.name);
+                file = e = undefined;
+                if (typeof(CollectGarbage) == "function") CollectGarbage();
+            }, // endReader
+            abortReader: function(e, file) {
+                console.warn('Aborting');
+                if ($("#myProgress").size()) $("#myProgress").hide();
+            }, // abortReader
+            ajaxType: 'POST',
+            ajaxURL: 'imageMaker.php',
+            ajaxCache: true,
+            ajaxData: 'ajaxData', // Ajax request setting
+            startXHR: function(e, file) {}, // startXHR
+            progressXHR: function(e, file) {
+                if (e.lengthComputable) return Math.round((e.loaded / e.total) * 100);
+            }, // progressXHR
+            loadXHR: function(e, file) {
+                loadProgress(file)
+            }, // loadXHR
+            endXHR: function(e, file) {
+                if (e.target.error) console.error(e.target.error.name);
+                file = e = undefined;
+                if (typeof(CollectGarbage) == "function") CollectGarbage();
+            }, // endXHR
+            errorXHR: function(e, file) {} // errorXHR
+        };
+        var loadProgress = function(file) {
+            var progress = html5.progress(file),
+                myProgress = document.getElementById('myProgress'),
+                optProgress = JSON.parse(myProgress.getAttribute('data-progress')),
+                optText = JSON.parse(myProgress.getAttribute('data-text')),
+                optValue = JSON.parse(myProgress.getAttribute('data-value')),
+                progTxt = +(optText.show) ? optText.content[0] + html5.paras('object')['counter'] + optText.content[1] + html5.paras('totalNumber') + optText.content[2] : '',
+                progVal = (Math.round(progress * 10) / 10) * 100 + optValue.sign;
+            if (optValue.pos != 'none') progTxt = (optValue.pos == 'right') ? progTxt + ' ' + progVal : progVal + ' ' + progTxt;
+            myProgress.getContext('2d').clearRect(0, 0, myProgress.width, myProgress.height);
+            myProgress.getContext('2d').fillStyle = optProgress.barRGB;
+            myProgress.getContext('2d').fillRect(0, 0, progress * myProgress.width, myProgress.height);
+            myProgress.getContext('2d').fillStyle = optProgress.txtRGB;
+            myProgress.getContext('2d').fillText(progTxt, optText.x, optText.y, myProgress.width);
+        };
+        html5.upload(options);
+    });
 
-<section id="demo">		<!-- section demo -->
-<h1>Demo</h1>
-<!-- drag and drop area -->
-<div id="uploadArea"></div>
-<!-- upload progressing bar -->
-<div class="myProgress"><canvas id="myProgress" width="500px" height="20px"
-	data-progress='{"barRGB": "rgba(8, 225, 8, 0.5)", "txtRGB": "#444"}'
-	data-text='{"show": true, "content": ["No: ", " file Total: ", " file"], "x": "50", "y": "16"}'
-	data-value='{"pos": "right", "value": "100", "sign": "%"}'>
-</canvas></div>
-<!-- upload information -->
-<div id="uploadInfo" class="uploadInfo"></div>
-<!-- upload select button -->
-<div class="uploadButton">
-	<a href="javascript:void(0)" onClick="imageClick();">UPLOAD</a>
-	<input type="file" id="uploadButton" style="display:none" multiple />
-</div>
-<!-- upload abort button -->
-<div class="uploadAbort"><a id="uploadAbort" href="javascript:void(0)">ABORT</a></div>
-</section><hr>
-
-<section id="start">	<!-- section start -->
-<h1>Getting Started</h1>
-<div class="textbox">
-	<p>// Setting the<b>upload options</b></p>
-	<p><b>var options = { ... }</b></p><br>
-	<p>// Setting the<b>imageUtility options( sample in this case )</b></p>
-	<p><b>var imageUtilityObj = { ... }</b></p><br>
-	<p>// Assign the parameter and event setting to options then starting the plugin by<b>self-invoking</b></p>
-	<p><b>html5.upload(options)</b></p><br>
-</div>
-
-<!-- imageUtility parameter setting -->
-<br><p class="subtitle"><b>ImageUtility Parameter Setting</b></p>
-<div class="textbox"><p><b>imgSize</b> &nbsp; // Object of image scaling size <b>Default: Default scaling Object</b></p></div>
-<br>
-<div class="textbox"><p><b>canvasRotate</b> &nbsp; // Canvas Rotate to fix the photo orientation issue <b>Default: false</b></p></div>
-<br>
-<div class="textbox"><p><b>quality</b> &nbsp; // Overall image quality  <b>Default: normal (normal or fine)</b></p></div>
-<br>
-<div class="textbox">
-	<p><b>imgQuality</b> &nbsp; // Each image quality <b>Default: []</b></p>
-	<p>(Array) Get Overall quality if Empty</p>
-</div>
-<br>
-<div class="textbox"><p><b>thumbnail</b> &nbsp; // Object of thumbnail size <b>Default: Default thumbnail Object</b></p></div>
-<br>
-<div class="textbox"><p><b>thumbEvent</b> &nbsp; // Event of upload thumbnail <b>Default: function(thumbnail){ }</b></p></div>
-<br>
-<div class="textbox"><p><b>Example imageUtilityObj</b>
-<pre>
+    function imageClick() {
+        $("#uploadButton").trigger("click");
+    }
+    </script>
+    <section id="demo">
+        <!-- section demo -->
+        <h1>Demo</h1>
+        <!-- drag and drop area -->
+        <div id="uploadArea"></div>
+        <!-- upload progressing bar -->
+        <div class="myProgress">
+            <canvas id="myProgress" width="500px" height="20px" data-progress='{"barRGB": "rgba(8, 225, 8, 0.5)", "txtRGB": "#444"}' data-text='{"show": true, "content": ["No: ", " file Total: ", " file"], "x": "50", "y": "16"}' data-value='{"pos": "right", "value": "100", "sign": "%"}'>
+            </canvas>
+        </div>
+        <!-- upload information -->
+        <div id="uploadInfo" class="uploadInfo"></div>
+        <!-- upload select button -->
+        <div class="uploadButton">
+            <a href="javascript:void(0)" onClick="imageClick();">UPLOAD</a>
+            <input type="file" id="uploadButton" style="display:none" multiple />
+        </div>
+        <!-- upload abort button -->
+        <div class="uploadAbort"><a id="uploadAbort" href="javascript:void(0)">ABORT</a></div>
+    </section>
+    <hr>
+    <section id="start">
+        <!-- section start -->
+        <h1>Getting Started</h1>
+        <div class="textbox">
+            <p>// Setting the<b>upload options</b></p>
+            <p><b>var options = { ... }</b></p>
+            <br>
+            <p>// Setting the<b>imageUtility options( sample in this case )</b></p>
+            <p><b>var imageUtilityObj = { ... }</b></p>
+            <br>
+            <p>// Assign the parameter and event setting to options then starting the plugin by<b>self-invoking</b></p>
+            <p><b>html5.upload(options)</b></p>
+            <br>
+        </div>
+        <!-- imageUtility parameter setting -->
+        <br>
+        <p class="subtitle"><b>ImageUtility Parameter Setting</b></p>
+        <div class="textbox">
+            <p><b>imgSize</b> &nbsp; // Object of image scaling size <b>Default: Default scaling Object</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>canvasRotate</b> &nbsp; // Canvas Rotate to fix the photo orientation issue <b>Default: false</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>quality</b> &nbsp; // Overall image quality <b>Default: normal (normal or fine)</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>imgQuality</b> &nbsp; // Each image quality <b>Default: []</b></p>
+            <p>(Array) Get Overall quality if Empty</p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>thumbnail</b> &nbsp; // Object of thumbnail size <b>Default: Default thumbnail Object</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>thumbEvent</b> &nbsp; // Event of upload thumbnail <b>Default: function(thumbnail){ }</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>Example imageUtilityObj</b>
+                <pre>
 var imageUtilityObj = {
 	// Image resize object
 	'imgSize': {
@@ -163,97 +232,177 @@ var imageUtilityObj = {
 	'thumbEvent': function(thumbnail){ $("#uploadInfo").append(thumbnail) }
 };
 </pre>
-</div>
-
-<!-- imageUtility public function -->
-<br><p class="subtitle"><b>ImageUtility - public function</b></p>
-<div class="textbox"><p><b>imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height)</b> &nbsp; // Resize image in maximum size</p></div>
-<div class="textbox"><p><b>imgResizeMIN : function(MIN_WIDTH, MIN_HEIGHT, width, height)</b> &nbsp; // Resize image in minimum size</p></div>
-<div class="textbox"><p><b>dataURL2Blob : function(dataURL, dataTYPE)</b> &nbsp; // Convert the dataURL to blob url</p></div>
-<div class="textbox"><p><b>thumbnail : function(image, object)</b> &nbsp; // Make thumbnail of upload image</p></div>
-<div class="textbox">
-	<p><b>readProcess : function(e, file, object, exif)</b> &nbsp; // FileAPI reader processor</p>
-	<p style="color:red"><b>exif : [Latitude, Longitude, Orientation]</b> // image Exif format (Need plugin)</p>
-</div>
-
-<!-- html5Upload public function -->
-<br><p class="subtitle"><b>Html5Upload - public function</b></p>
-<div class="textbox"><p><b>paras : function(parameter){ return eval(parameter) }</b> &nbsp; // Get constant or variable in upload processing</p></div>
-<div class="textbox"><p><b>setParas : function(obj){ object = jQuery.extend(true, object, obj) }</b> &nbsp; // Set constant or variable in protect object</p></div>
-<div class="textbox"><p><b>progress : function(file){ return uploadProgress(file) }</b> &nbsp; // Get value of quantify in upload processing</p></div>
-<div class="textbox"><p><b>upload : function(options){ initial(options) }</b> &nbsp; // Using the html5Upload plugin</p></div>
-<div class="textbox"><p><b>ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }</b> &nbsp; // Transfer the file to server by ajax</p></div>
-
-</section><hr>
-
-<section id="document">	<!-- section document -->
-<h1>Document</h1>
-<!-- Upload Parameter Setting -->
-<p class="subtitle"><b>Parameter Setting</b></p>
-<div class="textbox"><p><b>uploadArea</b> &nbsp; // Upload area <b>Default: #uploadArea</b></p></div>
-<br>
-<div class="textbox"><p><b>uploadButton</b> &nbsp; // Upload button <b>Default: #uploadButton</b></p></div>
-<br>
-<div class="textbox"><p><b>uploadAbort</b> &nbsp; // Upload abort  <b>Default: #uploadAbort</b></p></div>
-<br>
-<div class="textbox"><p><b>mimeTypes</b> &nbsp; // Mime types <b>Default: imageMime</b></p></div>
-<p>(supports imageMime, audioMime, videoMime and textMime, or custom mime type [Array])</p>
-<br>
-<div class="textbox"><p><b>mimeStrict</b> &nbsp; // Strict mime types <b>Default: true</b></p></div>
-<p>(upload strict mode)</p>
-<br>
-<div class="textbox"><p><b>numLimit</b> &nbsp; // Limitation of each upload <b>Default: 100</b></p></div>
-<p>(0 instead of no limitation)</p>
-<br>
-<div class="textbox"><p><b>numLimitTotal</b> &nbsp; // Total upload limitation  <b>Default: 0</b></p></div>
-<p>(0 instead of no limitation)</p>
-<br>
-<div class="textbox"><p><b>sizeLimitUni</b> &nbsp; // Each file size limitation <b>Default: 0</b></p></div>
-<p>(0 instead of no limitation)</p>
-<br>
-<div class="textbox"><p><b>sizeLimitSet</b> &nbsp; // A set of upload file size limitation <b>Default: 0</b></p></div>
-<p>(0 instead of no limitation)</p>
-<br>
-<div class="textbox"><p><b>sizeLimitTotal</b> &nbsp; // Total file size uploaded limitation <b>Default: 0</b></p></div>
-<p>(0 instead of no limitation)</p>
-<br>
-<div class="textbox"><p><b>readMethod</b> &nbsp; // FileAPI reader methods <b>Default: readAsDataURL</b></p></div>
-<p>(supports readAsText, readAsDataURL, readAsArrayBuffer, readAsBinaryString)</p>
-<br>
-<div class="textbox"><p><b>ajaxType</b> &nbsp; // Ajax request type <b>Default: POST</b></p></div>
-<br>
-<div class="textbox"><p><b>ajaxURL</b> &nbsp; // Ajax request url <b>Default: ' '</b></p></div>
-<br>
-<div class="textbox"><p><b>ajaxCache</b> &nbsp; // Ajax request cache <b>Default: true</b></p></div>
-<br>
-<div class="textbox"><p><b>ajaxData</b> &nbsp; // Ajax request data object <b>Default: ajaxData</b></p></div>
-<br>
-
-<!-- Upload Event Setting -->
-<br><p class="subtitle"><b>Event Setting</b></p>
-<div class="textbox"><p><b>dragenter: function(e){}</b> &nbsp; // Action of upload dragenter <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>dragover: function(e){}</b> &nbsp; // Action of upload dragover <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>dragleave: function(e){}</b> &nbsp; // Action of upload dragleave <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>dropdown: function(e){}</b> &nbsp; // Action of upload dropdown <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>startReader: function(e, file){}</b> &nbsp; // setting the fileAPI start event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>progressReader: function(e, file){}</b> &nbsp; // Setting the fileAPI progress event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>loadReader: function(e, file){}</b> &nbsp; // Setting the fileAPI load event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>endReader: function(e, file){}</b> &nbsp; // Setting the fileAPI end event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>abortReader: function(e, file){}</b> &nbsp; // Setting the fileAPI abort event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>startXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR start event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>progressXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR progress event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>loadXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR load event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>endXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR end event <b>Default: {}</b></p></div>
-<div class="textbox"><p><b>errorXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR error event <b>Default: {}</b></p></div>
-</section><hr>
-
-<section id="contact">	<!-- section contact -->
-<h1>Contact</h1>
-<p class="subtitle"><b>html5Upload.js was produced by Shawn Wu in 20140222</b></p>
-<p>@<b>Wu Shang En</b> on <a href="https://www.facebook.com/shangen.wu">Facebook</a>
-or <a href="https://twitter.com/WuShangEn">Twitter</a></p>
-<p style="text-decoration:none;">@This project under the <a href="_mitLicense.html">MIT License</a></p>
-<p style="text-decoration:none;">@Fork me on <a href="https://github.com/xenophon566">Github</a></p><br><br>
-</section><hr>
+        </div>
+        <!-- imageUtility public function -->
+        <br>
+        <p class="subtitle"><b>ImageUtility - public function</b></p>
+        <div class="textbox">
+            <p><b>imgResizeMAX : function(MAX_WIDTH, MAX_HEIGHT, width, height)</b> &nbsp; // Resize image in maximum size</p>
+        </div>
+        <div class="textbox">
+            <p><b>imgResizeMIN : function(MIN_WIDTH, MIN_HEIGHT, width, height)</b> &nbsp; // Resize image in minimum size</p>
+        </div>
+        <div class="textbox">
+            <p><b>dataURL2Blob : function(dataURL, dataTYPE)</b> &nbsp; // Convert the dataURL to blob url</p>
+        </div>
+        <div class="textbox">
+            <p><b>thumbnail : function(image, object)</b> &nbsp; // Make thumbnail of upload image</p>
+        </div>
+        <div class="textbox">
+            <p><b>readProcess : function(e, file, object, exif)</b> &nbsp; // FileAPI reader processor</p>
+            <p style="color:red"><b>exif : [Latitude, Longitude, Orientation]</b> // image Exif format (Need plugin)</p>
+        </div>
+        <!-- html5Upload public function -->
+        <br>
+        <p class="subtitle"><b>Html5Upload - public function</b></p>
+        <div class="textbox">
+            <p><b>paras : function(parameter){ return eval(parameter) }</b> &nbsp; // Get constant or variable in upload processing</p>
+        </div>
+        <div class="textbox">
+            <p><b>setParas : function(obj){ object = jQuery.extend(true, object, obj) }</b> &nbsp; // Set constant or variable in protect object</p>
+        </div>
+        <div class="textbox">
+            <p><b>progress : function(file){ return uploadProgress(file) }</b> &nbsp; // Get value of quantify in upload processing</p>
+        </div>
+        <div class="textbox">
+            <p><b>upload : function(options){ initial(options) }</b> &nbsp; // Using the html5Upload plugin</p>
+        </div>
+        <div class="textbox">
+            <p><b>ajaxTxing : function(ajaxData, file){ ajaxTxing(ajaxData, file) }</b> &nbsp; // Transfer the file to server by ajax</p>
+        </div>
+    </section>
+    <hr>
+    <section id="document">
+        <!-- section document -->
+        <h1>Document</h1>
+        <!-- Upload Parameter Setting -->
+        <p class="subtitle"><b>Parameter Setting</b></p>
+        <div class="textbox">
+            <p><b>uploadArea</b> &nbsp; // Upload area <b>Default: #uploadArea</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>uploadButton</b> &nbsp; // Upload button <b>Default: #uploadButton</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>uploadAbort</b> &nbsp; // Upload abort <b>Default: #uploadAbort</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>mimeTypes</b> &nbsp; // Mime types <b>Default: imageMime</b></p>
+        </div>
+        <p>(supports imageMime, audioMime, videoMime and textMime, or custom mime type [Array])</p>
+        <br>
+        <div class="textbox">
+            <p><b>mimeStrict</b> &nbsp; // Strict mime types <b>Default: true</b></p>
+        </div>
+        <p>(upload strict mode)</p>
+        <br>
+        <div class="textbox">
+            <p><b>numLimit</b> &nbsp; // Limitation of each upload <b>Default: 100</b></p>
+        </div>
+        <p>(0 instead of no limitation)</p>
+        <br>
+        <div class="textbox">
+            <p><b>numLimitTotal</b> &nbsp; // Total upload limitation <b>Default: 0</b></p>
+        </div>
+        <p>(0 instead of no limitation)</p>
+        <br>
+        <div class="textbox">
+            <p><b>sizeLimitUni</b> &nbsp; // Each file size limitation <b>Default: 0</b></p>
+        </div>
+        <p>(0 instead of no limitation)</p>
+        <br>
+        <div class="textbox">
+            <p><b>sizeLimitSet</b> &nbsp; // A set of upload file size limitation <b>Default: 0</b></p>
+        </div>
+        <p>(0 instead of no limitation)</p>
+        <br>
+        <div class="textbox">
+            <p><b>sizeLimitTotal</b> &nbsp; // Total file size uploaded limitation <b>Default: 0</b></p>
+        </div>
+        <p>(0 instead of no limitation)</p>
+        <br>
+        <div class="textbox">
+            <p><b>readMethod</b> &nbsp; // FileAPI reader methods <b>Default: readAsDataURL</b></p>
+        </div>
+        <p>(supports readAsText, readAsDataURL, readAsArrayBuffer, readAsBinaryString)</p>
+        <br>
+        <div class="textbox">
+            <p><b>ajaxType</b> &nbsp; // Ajax request type <b>Default: POST</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>ajaxURL</b> &nbsp; // Ajax request url <b>Default: ' '</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>ajaxCache</b> &nbsp; // Ajax request cache <b>Default: true</b></p>
+        </div>
+        <br>
+        <div class="textbox">
+            <p><b>ajaxData</b> &nbsp; // Ajax request data object <b>Default: ajaxData</b></p>
+        </div>
+        <br>
+        <!-- Upload Event Setting -->
+        <br>
+        <p class="subtitle"><b>Event Setting</b></p>
+        <div class="textbox">
+            <p><b>dragenter: function(e){}</b> &nbsp; // Action of upload dragenter <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>dragover: function(e){}</b> &nbsp; // Action of upload dragover <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>dragleave: function(e){}</b> &nbsp; // Action of upload dragleave <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>dropdown: function(e){}</b> &nbsp; // Action of upload dropdown <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>startReader: function(e, file){}</b> &nbsp; // setting the fileAPI start event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>progressReader: function(e, file){}</b> &nbsp; // Setting the fileAPI progress event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>loadReader: function(e, file){}</b> &nbsp; // Setting the fileAPI load event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>endReader: function(e, file){}</b> &nbsp; // Setting the fileAPI end event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>abortReader: function(e, file){}</b> &nbsp; // Setting the fileAPI abort event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>startXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR start event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>progressXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR progress event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>loadXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR load event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>endXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR end event <b>Default: {}</b></p>
+        </div>
+        <div class="textbox">
+            <p><b>errorXHR: function(e, file){}</b> &nbsp; // Setting the ajaxXHR error event <b>Default: {}</b></p>
+        </div>
+    </section>
+    <hr>
+    <section id="contact">
+        <!-- section contact -->
+        <h1>Contact</h1>
+        <p class="subtitle"><b>html5Upload.js was produced by Shawn Wu in 20140222</b></p>
+        <p>@<b>Wu Shang En</b> on <a href="https://www.facebook.com/shangen.wu">Facebook</a> or <a href="https://twitter.com/WuShangEn">Twitter</a></p>
+        <p style="text-decoration:none;">@This project under the <a href="_mitLicense.html">MIT License</a></p>
+        <p style="text-decoration:none;">@Fork me on <a href="https://github.com/xenophon566">Github</a></p>
+        <br>
+        <br>
+    </section>
+    <hr>
 </body>
+
 </html>
