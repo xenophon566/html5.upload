@@ -1,17 +1,33 @@
-Html5.upload
-=========
+# Html5.upload
 
-##### Describe
+## Getting Started
+
+1. npm install
+2. npm run dev
+
+## or
+
+🌟 Open on browser directly
+
+## Stackblitz
+
+[Html5.upload](https://stackblitz.com/edit/github-6zdjwe?file=README.md)
+
+## Describe
+
 HTML5 FileReader APIs spec.
 [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader)
 
-##### Features
+## Features
+
 1. Frontend upload files
 2. File processing at client side
 3. upload images, medias, audios and whatever you needs (do it youself)
 
-##### Base on
+## Base on
+
 HTML5
 
-##### License
-under the MIT License Copyright (c) {{2014 Shawn Wu}}
+## License
+
+under the MIT License Copyright (c) {{2013 Shawn Wu}}
