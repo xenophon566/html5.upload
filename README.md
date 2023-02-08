@@ -21,8 +21,8 @@ HTML5 FileReader APIs spec.
 ## Features
 
 1. Frontend upload files
-2. File processing at client side
-3. upload images, medias, audios and whatever you needs (do it youself)
+2. Files processing at client side
+3. upload images, medias, audios or whatever you needs (only images processor for now)
 
 ## Base on
 
